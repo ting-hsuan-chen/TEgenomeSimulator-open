@@ -1,0 +1,14 @@
+#Ting-Hsuan Chen
+#2024-01-10
+
+# Use RepeatMasker2 (RM2) for TE annotation
+# see /workspace/cflthc/script/KRIP_TE/09_benchmarking/09.01_RM2.ipynb
+
+# Use EDTA2 for TE annotation
+# see /workspace/cflthc/script/KRIP_TE/09_benchmarking/09.02_EDTA.ipynb
+
+# Use EarlGrey (EG) for TE annotation
+# see /workspace/cflthc/script/KRIP_TE/09_benchmarking/09.03_EarlGrey.ipynb
+
+# Combine all TE library (RM2 + EDTA + EG), remove exact duplicate, mask repeat in 'X's, and remove 'X's
+# see /workspace/cflthc/script/KRIP_TE/09_benchmarking/09.05_RepeatMasker.ipynb

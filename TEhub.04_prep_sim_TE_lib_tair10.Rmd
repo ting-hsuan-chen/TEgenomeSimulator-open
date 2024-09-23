@@ -1,0 +1,58 @@
+---
+title: "Summarise RepeatMasker output"
+author: "Ting-Hsuan Chen"
+date: "2024-04-17"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+WRK <- "/workspace/cflthc/script/KRIP_TE/10_TEgenomeSimulator"
+REF <- paste0 (WRK, "/model_species_ref")
+OUT <- paste0(WRK, "/model_species_RM/tair10")
+dir.create(file.path(OUT), recursive = TRUE, showWarnings = FALSE)
+knitr::opts_knit$set(root.dir=WRK)
+TEtb <- read.table("TElib_sim_list_tair10.table", header = T, sep = "\t", comment.char = "")
+```
+
+
+```{r, include=FALSE}
+TEtb <- read.table(paste0(WRK, "/TElib_sim_list_tair10.table"), header = T, sep = "\t", comment.char = "")
+RMout <- read.table("/workspace/cflthc/script/KRIP_TE/10_TEgenomeSimulator/model_species_RM/tair10/AthaGenome.fa.out.processed", header = T, sep = "\t", comment.char = "")
+RMout <- rename(RMout, Identity = identity, Integrity = length_ratio) |> 
+mutate(TE_rename = gsub("LTR/Copia", "01_LTR/Copia", superfamily)) |>
+mutate(TE_rename = gsub("LTR/Gypsy", "02_LTR/Gypsy", TE_rename)) |>
+mutate(TE_rename = gsub("LINE/L1", "03_LINE/L1", TE_rename)) |>
+mutate(TE_rename = gsub("LINE/LINE_Unknown", "04_LINE/unknown", TE_rename)) |>
+mutate(TE_rename = gsub("RathE1_cons", "05_SINE/RathE1_cons", TE_rename)) |>
+mutate(TE_rename = gsub("RathE2_cons", "06_SINE/RathE2_cons", TE_rename)) |>
+mutate(TE_rename = gsub("RathE3_cons", "07_SINE/RathE3_cons", TE_rename)) |>
+mutate(TE_rename = gsub("SINE/SINE_Unknown", "08_SINE/unknown", TE_rename)) |>
+mutate(TE_rename = gsub("DNA/DTC", "09_DNA/DTC", TE_rename)) |>
+mutate(TE_rename = gsub("DNA/DTA", "10_DNA/DTA", TE_rename)) |>
+mutate(TE_rename = gsub("DNA/DTM", "11_DNA/DTM", TE_rename)) |>
+mutate(TE_rename = gsub("DNA/DTH", "12_DNA/DTH", TE_rename)) |>
+mutate(TE_rename = gsub("DNA/DTT", "13_DNA/DTT", TE_rename)) |>
+mutate(TE_rename = gsub("DNA$", "14_DNA", TE_rename)) |>
+mutate(TE_rename = gsub("RC/Helitron", "15_RC/Helitron", TE_rename)) 
+```
+
+```{r, include=FALSE}
+colnames(TEtb)[1] <- "TE_family"
+newTEtb <- RMout |> group_by(original_family) |> 
+  summarise(count = n(),
+            idn = round(mean(Identity) * 100, 0),
+            sd = round(sd(Identity) * 100, 0),
+           indels = round(mean(indel) * 100, 0)) 
+newTEtb$sd[is.na(newTEtb$sd)] <- 0
+newTEtb <- merge(newTEtb, TEtb[, c(1:3, 8:11)], by.x = "original_family", by.y = "TE_family")
+newTEtb <- rename(newTEtb, TE_family = original_family) |>
+  relocate(subclass, .after = TE_family) |>
+  relocate(superfamily, .after = subclass)
+write.table(newTEtb, paste0(WRK, "/TElib_sim_list_tair10.table"), col.names = T, row.names = F, sep = "\t", quote = F)
+```
+
+```{bash}
+WRK=/workspace/cflthc/script/KRIP_TE/10_TEgenomeSimulator
+sed 's/^TE_family/#TE_family/' TElib_sim_list_tair10.table > temp.txt
+mv temp.txt TElib_sim_list_tair10.table
+```

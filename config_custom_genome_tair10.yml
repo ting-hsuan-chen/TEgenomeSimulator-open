@@ -1,0 +1,21 @@
+prefix: "tair10"
+genome_fasta: "./model_species_RM/tair10/AthaGenome.fa.nonTE"
+rep_fasta: "./model_species_ref/athaTEref_ru1.classified.fasta"
+rep_list: "TElib_sim_list_tair10.table"
+seed: 1
+chrs:
+  Chr1:
+    prefix: "Chr1"
+    seq_length: 26958741
+  Chr2:
+    prefix: "Chr2"
+    seq_length: 16299931
+  Chr3:
+    prefix: "Chr3"
+    seq_length: 20082276
+  Chr4:
+    prefix: "Chr4"
+    seq_length: 15537564
+  Chr5:
+    prefix: "Chr5"
+    seq_length: 23539267

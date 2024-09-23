@@ -1,0 +1,13 @@
+rep_fasta: "repeats_test.fa"
+rep_list: "repeats_list_test"
+seed: 1
+chrs:
+  chr1:
+    prefix: "chr1"
+    seq_length: 10
+    gc_content: 42
+  chr2:
+    prefix: "chr2"
+    seq_length: 20
+    gc_content: 42
+    

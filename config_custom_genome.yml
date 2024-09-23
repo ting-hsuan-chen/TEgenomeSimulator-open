@@ -1,0 +1,13 @@
+prefix: "custom"
+genome_fasta: "genome.fa"
+rep_fasta: "repeats_test.fa"
+rep_list: "repeats_list_test"
+seed: 1
+chrs:
+  chr1:
+    prefix: "chr1"
+    seq_length: 168
+  chr2:
+    prefix: "chr2"
+    seq_length: 242
+    

@@ -1,0 +1,104 @@
+prefix: "donghong"
+genome_fasta: "Donghong.chromosomes.only.fa.nonTE"
+rep_fasta: "combined_curated_TE_lib_ATOSZM_selected.fasta"
+rep_list: "TElib_sim_list.table"
+seed: 1
+chrs:
+  chr1:
+    prefix: "chr1"
+    seq_length: 10289840
+  chr2:
+    prefix: "chr2"
+    seq_length: 8891507
+  chr3:
+    prefix: "chr3"
+    seq_length: 14125079
+  chr4:
+    prefix: "chr4"
+    seq_length: 6717111
+  chr5:
+    prefix: "chr5"
+    seq_length: 8687309
+  chr6:
+    prefix: "chr6"
+    seq_length: 10064847
+  chr7:
+    prefix: "chr7"
+    seq_length: 9788989
+  chr8:
+    prefix: "chr8"
+    seq_length: 12895549
+  chr9:
+    prefix: "chr9"
+    seq_length: 8750610
+  chr10:
+    prefix: "chr10"
+    seq_length: 8628300
+  chr11:
+    prefix: "chr11"
+    seq_length: 8280711
+  chr12:
+    prefix: "chr12"
+    seq_length: 9521329
+  chr13:
+    prefix: "chr13"
+    seq_length: 11688725
+  chr14:
+    prefix: "chr14"
+    seq_length: 9111332
+  chr15:
+    prefix: "chr15"
+    seq_length: 10423022
+  chr16:
+    prefix: "chr16"
+    seq_length: 8713962
+  chr17:
+    prefix: "chr17"
+    seq_length: 7924595
+  chr18:
+    prefix: "chr18"
+    seq_length: 9853475
+  chr19:
+    prefix: "chr19"
+    seq_length: 11845836
+  chr20:
+    prefix: "chr20"
+    seq_length: 10138586
+  chr21:
+    prefix: "chr21"
+    seq_length: 8927973
+  chr22:
+    prefix: "chr22"
+    seq_length: 8914751
+  chr23:
+    prefix: "chr23"
+    seq_length: 12592540
+  chr24:
+    prefix: "chr24"
+    seq_length: 10001549
+  chr25:
+    prefix: "chr25"
+    seq_length: 9172042
+  chr26:
+    prefix: "chr26"
+    seq_length: 10120962
+  chr27:
+    prefix: "chr27"
+    seq_length: 9703801
+  chr28:
+    prefix: "chr28"
+    seq_length: 9263134
+  chr29:
+    prefix: "chr29"
+    seq_length: 8382231
+
+
+
+
+
+
+
+
+
+
+    
