@@ -1,6 +1,6 @@
 prefix: "test_random"
-rep_fasta: "./test/input/combined_curated_TE_lib_ATOSZM_selected.fasta"
-rep_list: "./test/output/TEgenomeSimulator_test_random_result/TElib_sim_list.table"
+rep_fasta: "../test/input/combined_curated_TE_lib_ATOSZM_selected.fasta"
+rep_list: "../test/output/TEgenomeSimulator_test_random_result/TElib_sim_list.table"
 seed: 1
 chrs:
   chr1:

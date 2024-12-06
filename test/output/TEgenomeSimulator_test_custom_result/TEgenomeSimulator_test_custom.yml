@@ -1,7 +1,7 @@
 prefix: "test_custom"
-genome_fasta: "./test/input/Donghong.chromosomes.only.fa.nonTE.2chrs"
-rep_fasta: "./test/input/combined_curated_TE_lib_ATOSZM_selected.fasta"
-rep_list: "./test/output/TEgenomeSimulator_test_custom_result/TElib_sim_list.table"
+genome_fasta: "../test/input/Donghong.chromosomes.only.fa.nonTE.2chrs"
+rep_fasta: "../test/input/combined_curated_TE_lib_ATOSZM_selected.fasta"
+rep_list: "../test/output/TEgenomeSimulator_test_custom_result/TElib_sim_list.table"
 seed: 1
 chrs:
   chr1:
