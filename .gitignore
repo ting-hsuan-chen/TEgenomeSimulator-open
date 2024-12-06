@@ -1,0 +1,5 @@
+# ignore fasta file
+*.fasta
+
+# ignore gff
+*.gff
