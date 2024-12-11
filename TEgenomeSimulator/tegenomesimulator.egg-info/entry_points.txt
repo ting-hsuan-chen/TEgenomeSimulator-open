@@ -1,0 +1,3 @@
+[console_scripts]
+TEgenomeSimulator = TEgenomeSimulator.TEgenomeSimulator:main
+
