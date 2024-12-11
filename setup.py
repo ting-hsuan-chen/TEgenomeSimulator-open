@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='TEgenomeSimulator',
+    name='tegenomesimulator',
     version='0.1.0',
     description='A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.',
     long_description=open('README.md').read(),  
@@ -11,17 +11,18 @@ setup(
     author_email='Ting-Hsuan.Chen@plantandfood.co.nz',
     url='https://github.com/PlantandFoodResearch/TEgenomeSimulator',
     license='MIT',
-    packages=find_packages(where='TEgenomeSimulator'),
-    package_dir={'': 'TEgenomeSimulator'},  # Specify the location of the package
+    packages=find_packages(),
+    #package_dir={'': 'TEgenomeSimulator'},  # Specify the location of the package
     install_requires=[
-        'numpy',
-        'pandas',
-        'biopython',
-        'pyyaml'
+        #'python>=3.9',
+        'numpy==1.26.2',
+        'pandas==2.2.1',
+        'biopython==1.81',
+        'pyyaml==6.0.1'
         ],
     entry_points={  # If you want to create command-line scripts
         'console_scripts': [
-            'TEgenomeSimulator = TEgenomeSimulator.TEgenomeSimulator:main',  # The entry point to the main script
+            'tegenomesimulator = TEgenomeSimulator.TEgenomeSimulator:main',  # The entry point to the main script
             ],
         },
     keywords=[
