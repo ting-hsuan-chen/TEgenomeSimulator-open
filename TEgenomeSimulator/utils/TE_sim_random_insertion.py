@@ -24,11 +24,6 @@ class Repeat:
         self.frag = frag
         self.nest = nest
 
-#Load params from YAML file config.yml in same directory
-#def parse_yaml():
-#    params = yaml.load(open('config.yml', 'r'), Loader=yaml.FullLoader)
-#    return params
-
 #Load params_chr from YAML file config_genome.yml in same directory (modified by THC)
 def parse_random_genome_yaml(config_file):
     params_chr = yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader)
@@ -363,43 +358,12 @@ def generate_genome_sequence(repeats_dict, rand_rep_pos, rand_chr_dict, shuffled
     #Return sequences and repeat data
     return genome_dict, new_repeats_coord_dict
 
-#Print final sequence to file
-#def print_data(prefix, seq, new_repeats_coord, total_names_rep):
-#    fasta_out = open(prefix + "_out_sequence.fasta", "w")
-#    fasta_out.write( ">sequence\n" )
-#    for n in range(0,len(seq),100):
-#        fasta_out.write(str(seq[n:n+100]) + "\n")
-#    fasta_out.close()
-#    #Print start positions of repeats to stderr
-#    fasta_rep = open(prefix + "_out_repeats.fasta", "w")
-#    gff_rep = open(prefix + "_out_repeats.gff", "w")
-#    c = 1
-#    for n,m in zip(new_repeats_coord, total_names_rep):
-#        repeat_identity = str(n[3])
-#        frag = str(n[4])
-#        strand = str(n[5])
-#        repeat_name = ">" + m[0] + "_p" +  str(c) +  "_" + repeat_identity + "_f" + frag + "\n"
-#        repeat_sequence = str(n[2])+ "\n"
-#
-#        fasta_rep.write(repeat_name)
-#        fasta_rep.write(repeat_sequence)
-#
-#        if frag == "100":
-#            gff_rep.write("\t".join(["sequence", "script", "repeat_region", n[0], n[1], ".", strand, ".", "ID=" + m[0] + "_p" + str(c) + ";identity=" + repeat_identity + "\n"]))
-#        else:
-#            gff_rep.write("\t".join(["sequence", "script", "repeat_region", n[0], n[1], ".", strand, ".", "ID=" + m[0] + "_p" + str(c) + ";identity=" + repeat_identity + ";fragment=" + frag +"\n"]))
-#        c+=1
-#    fasta_rep.close()
-#    gff_rep.close()
-
 #Print final genome sequence to file (function created by THC)
 def print_genome_data(genome_dict, new_repeats_coord_dict, params, out_dir):
     #Setup output directory   
     file_prefix = str(params['prefix'])
     final_out = out_dir + '/TEgenomeSimulator_' + file_prefix + '_result'
     os.chdir(final_out)
-    #Path(out_dir, "TEgenomeSimulator_" + file_prefix + "_result").mkdir(parents=True, exist_ok=True)
-    #os.chdir(Path(out_dir, "TEgenomeSimulator_" + file_prefix + "_result"))
     
     #Output files
     genome_fa = file_prefix + "_genome_sequence_out.fasta"
