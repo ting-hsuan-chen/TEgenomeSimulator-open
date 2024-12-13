@@ -2,7 +2,7 @@
 A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.
 
 ## Introduction
-TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). The original scripts were from [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval). Some existing functions had been modified and several new functions had been created for TEgenomeSimulator. The following table shows the major differences between denovoTE-eval and TEgenomeSimulator.
+TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). The original scripts were from [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval). Some existing functions had been modified and several new functions had been created for TEgenomeSimulator. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
 
 | Features | denovoTE-eval | TEgenomeSimulator |
 |:---------|:-------------:|:-----------------:|
