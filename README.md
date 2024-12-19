@@ -45,7 +45,7 @@ TEgenomeSimulator has two modes to be specified by user using the argument `-M` 
 2) `-M 1` or`--mode 1`: **Custom Genome Mode**. It utilises a user-provided genome containing multiple chromosomes where TE bases had been removed, providing a customised genome canvas for random TE insertion. When this mode is enabled, the user must use `-g` or `--genome` to provide a genome fasta file, e.g. [Dondhond.chromosomes.only.fa.nonTE.2chrs](./test/input/Donghong.chromosomes.only.fa.nonTE.2chrs.gz), which contains TE-depleted chromosome 1 and 2 from the published [_Actinidia chinensis_ var. 'Donghong'](https://doi.org/10.1016/j.molp.2022.12.022). In this fasta file, the TE sequences on the original chromosome 1 and 2 have been detected and removed. 
 
 ### Other required input files/information
-- `-p` or `--prefix`: a prefix for your simulation (not sure what that refers to, can you give an example or say where it will be used?)
+- `-p` or `--prefix`: a prefix for your simulation output files
 - `-r` or `--repeat`: a fasta file containing TE family sequences (i.e. a TE library) to be mutated and then inserted into genome. The TE lib in our test [combined_curated_TE_lib_ATOSZM_selected.fasta](./test/input/combined_curated_TE_lib_ATOSZM_selected.fasta.gz) was created by concatenating the TE libraries from a) _Arabidopsis thaliana_, b) _Oryza sativa_, and c) _Zea maize_ before using bbmap2 to remove exact duplicates and using CDHIT to generate a non-redundant TE lib for simulation test. The _A. thaliana_ and _Z. maize_ TE liraries were obtained from the [EDTA repo (Ou et al. 2019)](https://github.com/oushujun/EDTA/tree/master/database) and the _O. sativa_ TE lib was obtained from [RepeatModeller2 (Flynn et al. 2020)](https://github.com/jmf422/TE_annotation/tree/master/benchmark_libraries/RM2).
 - `-m` or `--maxcp`: an integer representing the maximum copy to be simulated for a TE family
 - `-n` or `--mincp`: an integer representing the minimum copy to be simulated for a TE family
@@ -112,6 +112,14 @@ optional arguments:
 ```
 
 ## Run TEgenomeSimulator using test data
+
+### Unzip example data
+
+```bash
+gunzip combined_curated_TE_lib_ATOSZM_selected.fasta.gz
+gunzip Donghong.chromosomes.only.fa.nonTE.2chrs.gz
+```
+
 ### Random Synthesized Genome Mode 
 ```bash
 cd TEgenomeSimulator
@@ -123,7 +131,7 @@ min=1
 outdir="../test/output"
 mkdir -p $outdir
 
-python3 tegenomesimulator.py -M 0 -p $prefix -c $chridx -r $repeat -m $max -n $min -o $outdir
+python3 TEgenomeSimulator.py -M 0 -p $prefix -c $chridx -r $repeat -m $max -n $min -o $outdir
 ```
 
 ### Custom Genome Mode
@@ -137,7 +145,7 @@ min=1
 outdir="../test/output"
 mkdir -p $outdir
 
-python3 tegenomesimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $min -o $outdir
+python3 TEgenomeSimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $min -o $outdir
 ```
 
 ## References:
