@@ -1,13 +1,13 @@
 # TEgenomeSimulator
-A tool for simulating TE mutations and insertions into a random-synthesised or user-provided genome.
+A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.
 
-This tool is released under the MIT license to promote the advancements in TE research. You are welcome to raise issues for inquiries regarding TEgenomeSimulator or contribure to its development and improvement. For more details, please refer to the [Contributing Guidlines](./.github/contributing_guide.md).
+This tool is under a MIT license with the goal to promote the advancement in TE research. You are welcome to raise issues for enquries regarding TEgenomeSimulator or contribure to the development / improvement of it. For details please check out [Contributing Guidline](./.github/contributing_guide.md).
 
 
 
 
 ## Introduction
-TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). The original scripts were from [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval). Some existing functions had been modified and several new functions had been created for TEgenomeSimulator. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
+TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). The original scripts were from [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval). Some existing functions were modified and several new functions were created for TEgenomeSimulator. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
 
 | Features | denovoTE-eval | TEgenomeSimulator |
 |:---------|:-------------:|:-----------------:|
@@ -33,11 +33,11 @@ TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski.
 | TE gff file: tag to show if TE nested in other TE  |  O  |  O  |
 | TE gff file: ID of associated nested/disrupted TEs  |  X  |  O  |
 
-<sup>a</sup> denovoTE-eval requires users to provide a configuration file and a TE mutation parameter table with information such as copy number, nucleotide identity, fragmentation, TSD etc., whereas TE genomeSimulator automatically helps users to create these files.
+<sup>a</sup> denovoTE-eval requires user to provide a configuration file and a TE mutation parameter table with information such as copy number, nucleotide identity, fragmentation, TSD etc., whereas TE genomeSimulator automatically helps user to create these files.
 
-<sup>b</sup> denovoTE-eval requires user to specify the copy number of each TE family in the TE mutation parameter table, whereas TEgenomeSimulator only requires user to specify a range of integer value where the copy number of each TE family would be randomly sampled. 
+<sup>b</sup> denovoTE-eval requires user to specify the copy number of each TE family in the TE mutation parameter table, whereas TEgenomeSimulator only requires user to specify a range of integer values where the copy number of each TE family would be randomly sampled. 
 
-<sup>c</sup> denovoTE-eval allows user to specify whether to simulate TSD using y|n with the length of TSD randomly picked between the range of 5 and 20, whereas TEgenomeSimulator tries to recognise the TE family information from the sequence headers in TE library fasta file and then decides on the TSD length based on literature. For example, TEgenomeSimulator would set "5" as the TSD length of a Copia LTR-retrotransposon but "8-9" for Mutator DNA transposon. You could check the code of [prep_sim_TE_lib.py](TEgenomeSimulaot/utils/prep_sim_TE_lib.py) for more details about TSD lenght setting.
+<sup>c</sup> denovoTE-eval allows user to specify whether to simulate TSD using y|n with the length of TSD randomly picked between the range of 5 and 20, whereas TEgenomeSimulator tries to recognise the TE family information from the sequence headers in TE library fasta file and then decides on the TSD length based on literature. For example, TEgenomeSimulator would set "5" as the TSD length of a Copia LTR-retrotransposon but "8-9" for Mutator DNA transposon. You can check the code of [prep_sim_TE_lib.py](TEgenomeSimulaot/utils/prep_sim_TE_lib.py) for more details about TSD length setting.
 
 <sup>d</sup> To allow TEgenomeSimulator to include TE superfamily and class/subclass information in the final TE gff file, please follow the header format `>{TE_family}#{TE_subclass}/{TE_superfamily}`, such as `>ATCOPIA10#LTR/Copia`.
 
@@ -51,7 +51,7 @@ TEgenomeSimulator has two modes to be specified by user using the argument `-M` 
 
 ### Other required input files/information
 - `-p` or `--prefix`: a prefix for your simulation
-- `-r` or `--repeat`: a fasta file containing TE family sequences (i.e. a TE library) to be mutated and then inserted into genome. The TE lib in our test [combined_curated_TE_lib_ATOSZM_selected.fasta](./test/input/combined_curated_TE_lib_ATOSZM_selected.fasta.gz) was created by concatanate TE library from a) _Arabidopsis thaliana_, b) _Oryza sativa_, and c) _Zea maize_ before using bbmap2 to remove exact duplicates and using CDHIT to generate a non-redundat TE lib for simulation test. The A. thaliana and Z. maize TE liraries were obtained from [EDTA repo (Ou et al. 2019)](https://github.com/oushujun/EDTA/tree/master/database) and the O. sativa TE lib was from [RepeatModeller2 (Flynn et al. 2020)](https://github.com/jmf422/TE_annotation/tree/master/benchmark_libraries/RM2).
+- `-r` or `--repeat`: a fasta file containing TE family sequences (i.e. a TE library) to be mutated and then inserted into genome. The TE lib in our test [combined_curated_TE_lib_ATOSZM_selected.fasta](./test/input/combined_curated_TE_lib_ATOSZM_selected.fasta.gz) was created by concatenating TE library from a) _Arabidopsis thaliana_, b) _Oryza sativa_, and c) _Zea maize_ before using bbmap2 to remove exact duplicates and using CDHIT to generate a non-redundat TE lib for simulation test. The _A. thaliana_ and _Z. maize_ TE libraries were obtained from [EDTA repo (Ou et al. 2019)](https://github.com/oushujun/EDTA/tree/master/database) and the _O. sativa_ TE library was from [RepeatModeller2 (Flynn et al. 2020)](https://github.com/jmf422/TE_annotation/tree/master/benchmark_libraries/RM2).
 - `-m` or `--maxcp`: an interger representing the maximum copy to be simulated for a TE family
 - `-n` or `--mincp`: an integer representing the minimum copy to be simulated for a TE family
 - `-c` or `--chridx`: the chromosome index file if **Random Synthesized Genome Mode** (`--mode 0`) is enabled. See the previous section **Run modes**.
@@ -59,18 +59,18 @@ TEgenomeSimulator has two modes to be specified by user using the argument `-M` 
 - `-s` or `--seed`: an integer to specify the seed value. Default is 1.
 - `-o` or `--outdir`: the path to the output directory
 
-### Two-step TE insertion
-1) **Step 1**: The first step of TEgenomeSimulator is to perform a non-overlap random TE insertion into the random synthesized or custom genome sequence.
+### Two steps
+1) **Step 1**: The first step of TEgenomeSimulator is to perform non-overlap random TE insertion into the random synthesized or custom genome sequence.
 2) **Step 2**: The second step is to perform nested TE insertion.
 
 ### Output files from TEgenomeSimulator
 - **TElib_sim_list.table**: A tab-delimited table storing the parameters for simulating TE mutation. See example at ./test/output/ 
 - **TEgenomeSimulator_{$prefix}.yml**: A configuration file for simulation. See example at ./test/output/
 - **{$prefix}_genome_sequence_out.fasta**: The simulated genome fasta file with non-overlap random TE insertion (from **Step 1**).
-- **{$prefix}_"_repeat_sequence_out.fasta**: The simulated TE sequences that have been inserted into the genome (from **Step 1**).
+- **{$prefix}_"_repeat_sequence_out.fasta**: The simulated TE sequences that had been inserted into the genome (from **Step 1**).
 - **{$prefix}_repeat_annotation_out.gff**: The coordinates of inserted TE after non-overlap random TE insertion (from **Step 1**).
 - **{$prefix}_genome_sequence_out_final.fasta**: The final simulated genome fasta file with non-overlap and nested random TE insertion (from **Step 2**).
-- **{$prefix}_repeat_sequence_out_final.fasta**: The final simulated TE sequences, including the nested TEs, that had been inserted into the genome (from **Step 2**).
+- **{$prefix}_repeat_sequence_out_final.fasta**: The final simulated TE sequences, including the nested TEs that had been inserted into the genome (from **Step 2**).
 - **{$prefix}_repeat_annotation_out_final.gff**: The final coordinates of all inserted TE adjusted after nested TE insertion (from **Step 2**)
 - **TEgenomeSimulator.log**: The log file of the simulation.
 
@@ -117,14 +117,6 @@ optional arguments:
 ```
 
 ## Run TEgenomeSimulator using test data
-
-### Unzip example data
-
-```bash
-gunzip combined_curated_TE_lib_ATOSZM_selected.fasta.gz
-gunzip Donghong.chromosomes.only.fa.nonTE.2chrs.gz
-```
-
 ### Random Synthesized Genome Mode 
 ```bash
 cd TEgenomeSimulator
@@ -136,7 +128,7 @@ min=1
 outdir="../test/output"
 mkdir -p $outdir
 
-python3 TEgenomeSimulator.py -M 0 -p $prefix -c $chridx -r $repeat -m $max -n $min -o $outdir
+python3 tegenomesimulator.py -M 0 -p $prefix -c $chridx -r $repeat -m $max -n $min -o $outdir
 ```
 
 ### Custom Genome Mode
@@ -150,7 +142,7 @@ min=1
 outdir="../test/output"
 mkdir -p $outdir
 
-python3 TEgenomeSimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $min -o $outdir
+python3 tegenomesimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $min -o $outdir
 ```
 
 ## References:
@@ -160,9 +152,11 @@ python3 TEgenomeSimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $m
 - [Flynn et al. RepeatModeler2 for automated genomic discovery of transposable element families. 2020 PNAS](https://doi.org/10.1073/pnas.1921046117)
 
 ## Credits, Funding and Acknowledgement
-- TEgenomeSimulator was originally scripted by Ting-Hsuan Chen.
-- This work is part of the Kiwifruit Royalty Investment Programme (KRIP)-funded _Genome Landscape_ objective, led by Susan Thomson.
-- The first release of TEgenomeSimulator v0.1.0 was built with the joint efforts from the Bioinformatics Analysis Team and Bioinformatics Engineering Team of Plant & Food Research. We appreciate all the advices and comments from our team members.
+- **Original Development**: TEgenomeSimulator was originally scripted by Ting-Hsuan Chen @ting-hsuan-chen.
+- **Funding and Leadership** This work is part of the Kiwifruit Royalty Investment Programme (KRIP)-funded _Genome Landscape_ objective, led by Susan Thomson @cflsjt.
+- **Reviewing and Testing**: Special thanks to Olivia Angeline-Bonnet @oliviaAB for reviewing and testing TEgenomeSimulator, and to Cecilia Deng @CeciliaDeng for additional review efforts.
+- **Team Contributions**: We appreciate all the advice and comments from The New Zealand Institute for Plant and Food Research Limited Bioinformatics Analysis and Bioinformatics Engineering Teams.
+
 
 ## Citations
 If you use TEgenomeSimulator for your work, please cite it as:
