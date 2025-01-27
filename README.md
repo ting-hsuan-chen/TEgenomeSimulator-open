@@ -162,4 +162,4 @@ python3 tegenomesimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $m
 If you use TEgenomeSimulator for your work, please cite it as:
 > **TEgenomeSimulator: A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.** \
 > Ting-Hsuan Chen, Olivia Angeline-Bonnet, Cecilia Deng, Susan Thomson \
-> zenodo. 2024. doi: (TBC)
+> zenodo. 2024. doi: 10.5281/zenodo.14744027
