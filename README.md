@@ -1,7 +1,7 @@
 # TEgenomeSimulator
 A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.
 
-This tool is under a MIT license with the goal to promote the advancement in TE research. You are welcome to raise issues for enquries regarding TEgenomeSimulator or contribure to the development / improvement of it. For details please check out [Contributing Guidline](./.github/contributing_guide.md).
+This tool is released under the MIT license to promote the advancements in TE research. You are welcome to raise issues for inquiries regarding TEgenomeSimulator or contribute to its development and improvement. For more details, please refer to [Contributing Guidline](./.github/contributing_guide.md).
 
 
 
@@ -153,7 +153,7 @@ python3 tegenomesimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $m
 
 ## Credits, Funding and Acknowledgement
 - **Original Development**: TEgenomeSimulator was originally scripted by Ting-Hsuan Chen [@ting-hsuan-chen](https://github.com/ting-hsuan-chen).
-- **Funding and Leadership** This work is part of the Kiwifruit Royalty Investment Programme (KRIP)-funded _Genome Landscape_ objective, led by Susan Thomson [@cflsjt](https://github.com/cflsjt).
+- **Funding and Leadership**: This work is part of the Kiwifruit Royalty Investment Programme (KRIP)-funded _Genome Landscape_ objective, led by Susan Thomson [@cflsjt](https://github.com/cflsjt).
 - **Reviewing and Testing**: Special thanks to Olivia Angeline-Bonnet [@oliviaAB](https://github.com/oliviaAB) for reviewing and testing TEgenomeSimulator, and to Cecilia Deng [@CeciliaDeng](https://github.com/CeciliaDeng) for additional review efforts.
 - **Team Contributions**: We appreciate all the advice and comments from The New Zealand Institute for Plant and Food Research Limited Bioinformatics Analysis and Bioinformatics Engineering Teams.
 
