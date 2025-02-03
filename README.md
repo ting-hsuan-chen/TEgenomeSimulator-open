@@ -1,10 +1,9 @@
 # TEgenomeSimulator
 A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.
 
-This tool is released under the GPL license to promote the advancements in TE research. You are welcome to raise issues for inquiries regarding TEgenomeSimulator or contribute to its development and improvement. For more details, please refer to [Contributing Guideline](./.github/contributing_guide.md).
+This tool is released under the GPL license to promote advancements in TE research. The first version of TEgenomeSimulator (v0.1.0) was developed by [The New Zealand Institute for Plant and Food Research Ltd](https://www.plantandfood.com/en-nz/). More details about contributors, leadership and funding can be found in [Credits, Funding and Acknowledgement](https://github.com/Plant-Food-Research-Open/TEgenomeSimulator?tab=readme-ov-file#credits-funding-and-acknowledgement).
 
-
-
+You are welcome to raise issues for inquiries regarding TEgenomeSimulator or contribute to its development and improvement. For more details, please refer to [Contributing Guideline](./.github/contributing_guide.md).
 
 ## Introduction
 TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). TEgenomeSimulator adopted and modified scripts from the original [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval), and further developed with several new functionalities. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
@@ -163,3 +162,6 @@ If you use TEgenomeSimulator for your work, please cite it as:
 > **TEgenomeSimulator: A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.** \
 > Ting-Hsuan Chen, Olivia Angeline-Bonnet, Cecilia Deng, Susan Thomson \
 > zenodo. 2024. doi: 10.5281/zenodo.14744027
+
+## Contact person
+Ting-Hsuan Chen: ting-hsuan.chen@plantandfood.co.nz
