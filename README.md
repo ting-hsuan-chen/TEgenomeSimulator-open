@@ -1,13 +1,13 @@
 # TEgenomeSimulator
 A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.
 
-This tool is released under the MIT license to promote the advancements in TE research. You are welcome to raise issues for inquiries regarding TEgenomeSimulator or contribute to its development and improvement. For more details, please refer to [Contributing Guidline](./.github/contributing_guide.md).
+This tool is released under the GPL license to promote the advancements in TE research. You are welcome to raise issues for inquiries regarding TEgenomeSimulator or contribute to its development and improvement. For more details, please refer to [Contributing Guideline](./.github/contributing_guide.md).
 
 
 
 
 ## Introduction
-TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). The original scripts were from [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval). Some existing functions were modified and several new functions were created for TEgenomeSimulator. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
+TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). TEgenomeSimulator adopted and modified scripts from the original [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval), and further developed with several new functionalities. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
 
 | Features | denovoTE-eval | TEgenomeSimulator |
 |:---------|:-------------:|:-----------------:|
@@ -35,7 +35,7 @@ TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski.
 
 <sup>a</sup> denovoTE-eval requires user to provide a configuration file and a TE mutation parameter table with information such as copy number, nucleotide identity, fragmentation, TSD etc., whereas TE genomeSimulator automatically helps user to create these files.
 
-<sup>b</sup> denovoTE-eval requires user to specify the copy number of each TE family in the TE mutation parameter table, whereas TEgenomeSimulator only requires user to specify a range of integer values where the copy number of each TE family would be randomly sampled. 
+<sup>b</sup> denovoTE-eval requires user to specify the copy number of each TE family in the TE mutation parameter table, whereas TEgenomeSimulator provides more flexibility and allows users to specify a range of integer values where the copy number of each TE family would be randomly sampled. 
 
 <sup>c</sup> denovoTE-eval allows user to specify whether to simulate TSD using y|n with the length of TSD randomly picked between the range of 5 and 20, whereas TEgenomeSimulator tries to recognise the TE family information from the sequence headers in TE library fasta file and then decides on the TSD length based on literature. For example, TEgenomeSimulator would set "5" as the TSD length of a Copia LTR-retrotransposon but "8-9" for Mutator DNA transposon. You can check the code of [prep_sim_TE_lib.py](TEgenomeSimulaot/utils/prep_sim_TE_lib.py) for more details about TSD length setting.
 
