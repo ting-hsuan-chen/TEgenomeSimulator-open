@@ -78,7 +78,7 @@ TEgenomeSimulator has two modes to be specified by user using the argument `-M` 
 ### 1. Clone this repo
 ```bash
 cd $MYDIR
-git clone git@github.com:PlantandFoodResearch/TEgenomeSimulator.git
+git clone git@github.com:Plant-Food-Research-Open/TEgenomeSimulator.git
 ```
 
 ### 2. Navigate to the cloned folder and install
