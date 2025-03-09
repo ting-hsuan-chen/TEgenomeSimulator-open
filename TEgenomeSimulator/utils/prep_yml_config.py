@@ -21,7 +21,7 @@ parser.add_argument("-t","--table", type=str,
 parser.add_argument("-s","--seed", type=str, default="1",
                     help="seed value for simulation. default = 1")
 parser.add_argument("-o", "--outdir", type=str,
-                    help="output firectory")
+                    help="output directory")
 
 args = parser.parse_args()
 prefix = args.prefix

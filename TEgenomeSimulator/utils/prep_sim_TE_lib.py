@@ -20,7 +20,7 @@ parser.add_argument("-n", "--mincp", type=int,
 parser.add_argument('-s', '--seed', type=int, 
                     default=1, help="Random seed (default is 1).")
 parser.add_argument("-o", "--outdir", type=str,
-                    help="output firectory")
+                    help="output directory")
 
 args = parser.parse_args()
 prefix = args.prefix
