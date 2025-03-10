@@ -223,10 +223,10 @@ final_out = str(out_dir) + "/TEgenomeSimulator_" + str(prefix) + "_result"
 #os.chdir(Path(out_dir, "TEgenomeSimulator_" + file_prefix + "_result"))
 
 table_out = open(Path(final_out, "TElib_sim_list.table"), "w")
-table_out.write("\t".join(["#TE_family", "superfamily", "subclass", "count", "idn", "sd", "indels", "tsd", "length", "frag", "nest" + "\n"]))
+table_out.write("\t".join(["#TE_family", "subclass", "superfamily", "count", "idn", "sd", "indels", "tsd", "length", "frag", "nest" + "\n"]))
 n = len(te_family)
 for i in range(n - 1):
-    table_out.write("\t".join([str(te_family[i]), str(te_superfamily[i]), str(te_subclass[i]), str(copy_number[i]), str(identity[i]), str(sd[i]), str(indel[i]), str(tsd[i]), str(length[i]), str(fragment[i]), str(nested[i]) + "\n"]))
+    table_out.write("\t".join([str(te_family[i]), str(te_subclass[i]), str(te_superfamily[i]),  str(copy_number[i]), str(identity[i]), str(sd[i]), str(indel[i]), str(tsd[i]), str(length[i]), str(fragment[i]), str(nested[i]) + "\n"]))
 table_out.close()    
 
 print(f"Generated the TE library table for simulation. File saved as {out_dir}/TElib_sim_list.table")
