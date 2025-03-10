@@ -144,6 +144,11 @@ mkdir -p $outdir
 python3 tegenomesimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $min -o $outdir
 ```
 
+### Custom Genome Mode 2
+- Test file: Arabidopsis genome downloaded from ncbi at https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/accession/GCF_000001735.4/
+- Arabidopsis TE lib acquired from https://github.com/oushujun/EDTA/blob/master/database/
+
+
 ## References:
 - [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2)
 - [denovoTE-eval: https://github.com/IOB-Muenster/denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval)
