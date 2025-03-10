@@ -1,0 +1,33 @@
+package:
+  name: tegenomesimulator
+  version: "1.0.0"
+
+source:
+  path: ../  # Uses the local project directory
+
+build:
+  noarch: python
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir"
+
+requirements:
+  build:
+    - python>=3.9,<3.12
+    - pip
+    - setuptools
+  run:
+    - python>=3.9
+    - bioconda::repeatmasker
+    - bioconda::samtools
+    - numpy ==1.26.2
+    - pandas ==2.2.1
+    - biopython ==1.81
+    - pyyaml ==6.0.1
+
+test:
+  imports:
+    - TEgenomeSimulator  # Ensure the package is importable
+
+about:
+  home: "https://github.com/Plant-Food-Research-Open/TEgenomeSimulator"
+  summary: "TEgenomeSimulator: A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome."
+  license: "GPL"
