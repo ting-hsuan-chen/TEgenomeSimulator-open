@@ -8,7 +8,20 @@ from Bio import SeqIO
 # Read args
 prefix = sys.argv[1]
 rm_outsum = sys.argv[2]
-out_dir = sys.argv[3]
+#intact = sys.argv[3]
+seed = sys.argv[3]
+out_dir = sys.argv[4]
+
+print("\n")
+print("#########################################################")
+print("### Prepare TE library table with simulation settings ###")
+print("#########################################################")
+print(f"Using repeatmasker output summary file {rm_outsum}")
+print(f"Output directory set as {out_dir}")
+
+#Set seed
+if seed:
+    random.seed(seed)
 
 # Load file
 te_sum = pd.read_table(rm_outsum, sep='\t')
@@ -19,7 +32,12 @@ te_sum = pd.read_table(rm_outsum, sep='\t')
 
 # TE subclass
 te_sum['subclass'] = te_sum['superfamily'].replace("/.*", "", regex=True)  
+
+# allow a factor to adjust copynumber 
 # count is the column 'copynumber'
+#factor = 0.7
+#te_sum['copynumber'] = (te_sum['copynumber']) * factor
+#te_sum['copynumber'] = te_sum['copynumber'].astype(int)   
 
 # identity
 te_sum['idn'] = round(te_sum['mean_identity'] * 100, 0)
@@ -77,10 +95,14 @@ te_sum['tsd'] = pd.DataFrame({'tsd': tsd})
 # length is the column 'full_length_bp'
 
 # fragmented TE loci (as a proportion to total TE loci of the family)
-# need adjust the propostion of fragmented loci
-te_sum['new_frag'] = (te_sum['fragment_ratio'] + 1) / 2
-te_sum['frag'] = round(te_sum['new_frag'] * 100, 0)
-te_sum['frag'] = te_sum['frag'].astype(int)
+#te_sum['new_frag'] = (te_sum['fragment_ratio'] + 1) / 2
+#te_sum['frag'] = round(te_sum['new_frag'] * 100, 0)
+#te_sum['frag'] = te_sum['frag'].astype(int)
+te_sum['frag'] = te_sum['fragment_ratio'].astype(float)
+te_sum['frag'] = te_sum['frag'] * 100
+
+# integrity list
+# integrities = te_sum['integrity_lst']
 
 # nest TE loci (as a proportion to total TE loci of the family; only apply for Copia and Gypsy)
 copia_gypsy = ['LTR/Copia', 'LTR/Gypsy', 'LTR/Ty3'] 
@@ -101,7 +123,7 @@ te_sum['nest'] = pd.DataFrame({'nest': nested})
 print("\n")
 print("## Printing the TE library table for mode 2 ##") 
 
-df = te_sum[['original_family', 'subclass', 'superfamily', 'copynumber', 'idn', 'sd', 'indels', 'tsd', 'full_length_bp', 'frag', 'nest']]
+df = te_sum[['original_family', 'subclass', 'superfamily', 'copynumber', 'idn', 'sd', 'indels', 'tsd', 'full_length_bp', 'frag', 'nest', 'integrity_lst']]
 df = df.rename(columns={'original_family': '#TE_family', 'copynumber': 'count', 'full_length_bp': 'length'})
 
 # write to output

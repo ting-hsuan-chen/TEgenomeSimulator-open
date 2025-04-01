@@ -33,8 +33,23 @@ for record in SeqIO.parse(input_fasta, "fasta"):
     if "_INT#" in header:
         te_id, te_class = header.split("_INT#")
         te_type = "INT"
+    elif "_I#" in header:
+        te_id, te_class = header.split("_I#")
+        te_type = "INT"
+    elif "-I#" in header:
+        te_id, te_class = header.split("-I#")
+        te_type = "INT" 
+    elif "I#" in header:
+        te_id, te_class = header.split("I#")
+        te_type = "INT"
     elif "_LTR#" in header:
         te_id, te_class = header.split("_LTR#")
+        te_type = "LTR"
+    elif "-LTR#" in header:
+        te_id, te_class = header.split("-LTR#")
+        te_type = "LTR"
+    elif "LTR#" in header:
+        te_id, te_class = header.split("LTR#")
         te_type = "LTR"
     else:
         # Store sequences that don't need stitching directly

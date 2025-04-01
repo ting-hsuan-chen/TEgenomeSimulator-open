@@ -1,5 +1,56 @@
 import sys
 import statistics
+import os
+from Bio import SeqIO
+
+
+def load_repeat_index(index_file):
+    """
+    Load repeat IDs from repeat.fai file.
+
+    Args:
+        index_file (str): Path to the repeat.fai file.
+
+    Returns:
+        set: A set of valid repeat IDs.
+    """
+    valid_repeats = set()
+    with open(index_file, "r") as infile:
+        for line in infile:
+            if line.strip():  # Skip empty lines
+                repeat_id = line.split()[0]  # Extract first column
+                valid_repeats.add(repeat_id)
+    
+    return valid_repeats
+
+
+def filter_repeatmasker(repeatmasker_file, index_file):
+    """
+    Filter repeatmasker.out file based on valid repeats from repeat.index.
+
+    Args:
+        repeatmasker_file (str): Path to the RepeatMasker output file.
+        index_file (str): Path to the repeat.index file.
+        output_file (str): Path to save the filtered results.
+    """
+    valid_repeats = load_repeat_index(index_file)
+    filtered_out = f"{repeatmasker_file}.filtered"
+
+    with open(repeatmasker_file, "r") as infile, open(filtered_out, "w") as outfile:
+        for line in infile:
+            if line.strip().startswith("SW") or line.strip().startswith("score"):  
+                # Keep header lines
+                outfile.write(line)
+                continue
+
+            cols = line.split()
+            if len(cols) > 11:  # Ensure line has enough columns
+                combined_repeat = f"{cols[9]}#{cols[10]}"  # 10th and 11th column combined
+                if combined_repeat in valid_repeats:
+                    outfile.write(line)
+
+    #print(f"Filtered RepeatMasker output saved to: {filtered_out}")
+    return filtered_out
 
 def extract_sizes(rmasker_tbl):
     with open(rmasker_tbl, 'r') as file:
@@ -39,7 +90,7 @@ def process_repeatmasker_output(rmasker_out):
     reverse_data = []
     
     with open(rmasker_out, 'r') as file:
-        lines = file.readlines()[3:]  # Skip first 3 lines
+        lines = file.readlines() #[3:]  # Don't need to skip first 3 lines
         for line in lines:
             line = line.replace('(', '').replace(')', '')  # Remove ( and ) characters
             parts = line.strip().split()
@@ -92,7 +143,7 @@ def process_final_output(liblength, combined_temp):
                 family_length = int(family_data[parts[0]][0])
                 length_ratio = float(parts[5]) / family_length if family_length else 0
                 cut_ratio = (int(parts[6]) + int(parts[7])) / family_length if family_length else 0
-                processed_data.append(parts + [str(family_length), str(length_ratio), str(cut_ratio), family_data[parts[0]][0]])
+                processed_data.append(parts + [str(family_length), str(length_ratio), str(cut_ratio), family_data[parts[0]][1]])
     
     # Write processed output
     with open(processed_output, 'w') as file:
@@ -111,19 +162,20 @@ def summarize_each_family(processed_output):
         next(file)
         for line in file:
             parts = line.strip().split('\t')
-            families.add((parts[0], parts[1]))
+            families.add((parts[0], parts[1], parts[11]))
     
     with open(family_list, 'w') as file:
-        for fam, sfam in sorted(families):
-            file.write(f"{fam},{sfam}\n")
+        for fam, sfam, ori_fam in sorted(families):
+            file.write(f"{fam},{sfam},{ori_fam}\n")
     
     with open(summary_fam, 'w') as summary_file:
-        summary_file.write("family\tsuperfamily\tfull_length_bp\tcopynumber\tmean_identity\tsd_identity\tmean_indel\ttotal_length\tmean_length\tmean_headcut\tmean_tailcut\tmean_cut\tfragment_copy\tfragment_ratio\toriginal_family\n")
+        summary_file.write("family\tsuperfamily\tfull_length_bp\tcopynumber\tmean_identity\tsd_identity\tmean_indel\ttotal_length\tmean_length\tmean_headcut\tmean_tailcut\tmean_cut\tfragment_copy\tfragment_ratio\toriginal_family\tintegrity_lst\n")
         
-        for fam, sfam in sorted(families):
+        for fam, sfam, ori_fam in sorted(families):
             frag_count = 0
             total_identity = total_indel = total_length = total_headcut = total_tailcut = total_cut = count = 0
             identities = []
+            integrities = []
             
             with open(processed_output, 'r') as file:
                 next(file)
@@ -131,14 +183,16 @@ def summarize_each_family(processed_output):
                     parts = line.strip().split('\t')
                     if parts[0] == fam:
                         count += 1
-                        identities.append(float(parts[4]))
-                        total_identity += float(parts[4])
-                        total_indel += float(parts[5])
-                        total_length += int(parts[6])
-                        total_headcut += int(parts[7])
-                        total_tailcut += int(parts[8])
-                        total_cut += (int(parts[7]) + int(parts[8]))
-                        if float(parts[9]) < 0.9:
+                        identities.append(float(parts[3]))
+                        integrities.append(float(parts[9]))
+                        total_identity += float(parts[3])
+                        total_indel += float(parts[4])
+                        total_length += int(parts[5])
+                        total_headcut += int(parts[6])
+                        total_tailcut += int(parts[7])
+                        total_cut += (int(parts[6]) + int(parts[7]))
+                        full_length = parts[8]
+                        if float(parts[9]) < 1:
                             frag_count += 1
             
             mean_identity = total_identity / count if count else 0
@@ -150,7 +204,7 @@ def summarize_each_family(processed_output):
             mean_cut = total_cut / count if count else 0
             fragment_ratio = frag_count / count if count else 0
             
-            summary_file.write(f"{fam}\t{sfam}\t{total_length}\t{count}\t{mean_identity}\t{sd_identity}\t{mean_indel}\t{total_length}\t{mean_length}\t{mean_headcut}\t{mean_tailcut}\t{mean_cut}\t{frag_count}\t{fragment_ratio}\t{fam}\n")
+            summary_file.write(f"{fam}\t{sfam}\t{full_length}\t{count}\t{mean_identity}\t{sd_identity}\t{mean_indel}\t{total_length}\t{mean_length}\t{mean_headcut}\t{mean_tailcut}\t{mean_cut}\t{frag_count}\t{fragment_ratio}\t{ori_fam}\t{integrities}\n")
     
     return summary_fam
 
@@ -187,17 +241,20 @@ def create_high_level_summary(summary_fam, genome_size, masked_size):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("Usage: python summarise_rm_out.py <RMaskerTbl> <LibIndex> <RMaskerOut>")
+    if len(sys.argv) != 5:
+        print("Usage: python summarise_rm_out.py <RMaskerTbl> <LibIndex> <RMaskerOut>,<OutDir>.")
         sys.exit(1)
     
     rmasker_tbl = sys.argv[1]
     libindex = sys.argv[2]
     rmasker_out = sys.argv[3]
+    out_dir = sys.argv[4]
     
+    os.chdir(out_dir)
+    filtered_out = filter_repeatmasker(rmasker_out, libindex)
     genome_size, masked_size = extract_sizes(rmasker_tbl)
     liblength = extract_te_family_length(libindex)
-    combined_temp = process_repeatmasker_output(rmasker_out)
+    combined_temp = process_repeatmasker_output(filtered_out)
     processed_output = process_final_output(liblength, combined_temp)
     summary_output = summarize_each_family(processed_output)
     create_high_level_summary(summary_output, genome_size, masked_size)

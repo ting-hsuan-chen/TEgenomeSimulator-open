@@ -35,8 +35,7 @@ def add_random_nucleotides(fasta_file, output_file):
 
 # Input and output file names
 input_fasta = sys.argv[1]
-name_fasta = os.path.basename(input_fasta)
-output_fasta = f"{name_fasta}.emptfixed"
+output_fasta = f"{input_fasta}.emptfixed"
 
 # Check the FASTA file
 add_random_nucleotides(input_fasta, output_fasta)

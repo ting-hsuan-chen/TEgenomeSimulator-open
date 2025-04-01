@@ -5,6 +5,7 @@ import random
 import re
 from Bio import SeqIO
 from pathlib import Path
+import numpy as np
 
 
 # parse argument
@@ -17,6 +18,8 @@ parser.add_argument("-m", "--maxcp", type=int,
                     help="maximum copy number to be simulated for a TE family")
 parser.add_argument("-n", "--mincp", type=int,
                     help="minimum copy number to be simulated for a TE family")
+parser.add_argument("-i", "--intact", type=float,
+                    default=0.001, help="maximum proportion of intact TEs per TE family (default is 0.001, i.e. 0.1%)")
 parser.add_argument('-s', '--seed', type=int, 
                     default=1, help="Random seed (default is 1).")
 parser.add_argument("-o", "--outdir", type=str,
@@ -27,6 +30,7 @@ prefix = args.prefix
 te_fa = args.repeat
 max_cp = args.maxcp
 min_cp = args.mincp
+intact = args.intact
 seed = args.seed
 out_dir = args.outdir
 
@@ -56,28 +60,35 @@ for te_id in te_family:
     te_superfamily.append(superfamily)
     
 # TE subclass
-ltr_retro = ['LTR/Copia', 'LTR/Gypsy', 'LTR/Ty3', 'LTR/Solo', 'LTR/unknown']
-line = ['LINE/unknown', 'LINE/L1']
-sine = ['SINE/unknown', 'SINE/tRNA']
-tir = ['DNA/hAT', 'DNAnona/hAT', 'DNAauto/hAT', 'DNA/CACTA', 'DNAnona/CACTA', 'DNAauto/CACTA', 'DNA/Harbinger', 'DNA/MuDR', 'DNAnona/MULE', 'DNAauto/MULE', 'DNA/Mariner']
-helitron = ['DNA/Helitron', 'DNAnona/Helitron', 'DNAauto/Helitron']
-mite = ['MITE/Stow', 'MITE/Tourist']
-
 te_subclass = []
 for sup_fam in te_superfamily:
-    if sup_fam in ltr_retro:
-        subclass = 'LTR_retrotransposon'
-    if sup_fam in line:
-        subclass = 'LINE_retrotransposon'
-    if sup_fam in sine:
-        subclass = 'SINE_retrotransposon'
-    if sup_fam in tir:
-        subclass = 'TIR_transposon'
-    if sup_fam in helitron:
-        subclass = 'Helitron'
-    if sup_fam in mite:
-        subclass = 'MITE'
+    subclass = re.sub("/.*", "", sup_fam)
+    #sup_fam.replace("/.*", "", regex=True)
     te_subclass.append(subclass)
+
+# te_subclass = []
+# ltr_retro = ['LTR/Copia', 'LTR/Gypsy', 'LTR/Ty3', 'LTR/Solo', 'LTR/unknown']
+# line = ['LINE/unknown', 'LINE/L1']
+# sine = ['SINE/unknown', 'SINE/tRNA']
+# tir = ['DNA/hAT', 'DNAnona/hAT', 'DNAauto/hAT', 'DNA/CACTA', 'DNAnona/CACTA', 'DNAauto/CACTA', 'DNA/Harbinger', 'DNA/MuDR', 'DNAnona/MULE', 'DNAauto/MULE', 'DNA/Mariner']
+# helitron = ['DNA/Helitron', 'DNAnona/Helitron', 'DNAauto/Helitron']
+# mite = ['MITE/Stow', 'MITE/Tourist']
+# 
+# te_subclass = []
+# for sup_fam in te_superfamily:
+#     if sup_fam in ltr_retro:
+#         subclass = 'LTR_retrotransposon'
+#     if sup_fam in line:
+#         subclass = 'LINE_retrotransposon'
+#     if sup_fam in sine:
+#         subclass = 'SINE_retrotransposon'
+#     if sup_fam in tir:
+#         subclass = 'TIR_transposon'
+#     if sup_fam in helitron:
+#         subclass = 'Helitron'
+#     if sup_fam in mite:
+#         subclass = 'MITE'
+#     te_subclass.append(subclass)
      
 # count
 print("\n")
@@ -167,6 +178,8 @@ for sup_fam in te_superfamily:
         tsd_range = '0,0'
     if sup_fam in mite:
         tsd_range = '2,10'
+    else:
+        tsd_range = '0,0'
     tsd.append(str(tsd_range))
 
 print("Length range of TSD for LTR retrotransposon set to: 5 - 5")
@@ -179,6 +192,7 @@ print("Length range of TSD for DTM set to: 8 - 9")
 print("Length range of TSD for DTT set to: 2 - 2")
 print("Length range of TSD for Helitron set to: 0")
 print("Length range of TSD for MITE set to: 2 - 10")
+print("Length range of TSD for else set to: 0")
 
 # length
 print("\n")
@@ -191,15 +205,21 @@ for te_id in te_lib:
 # fragmented TE loci (as a proportion to total TE loci of the family)
 print("\n")
 print("## Setting the proportion of fragmented TE loci of each TE family ##")
+#min_intact_ratio = 0
+#max_intact_ratio = float(intact)
+# the value of "intact" represent the maximum chance of 
 fragment = []
-minimum = 50
-maximum = 98
+minimum = 100 - intact
+maximum = 100
 n = len(te_family)
 for i in range(n):
-    random_num = random.choice(range(minimum, maximum + 1))
+    random_num = np.random.uniform(minimum, maximum)
+    #random_num = random.choice(range(minimum, maximum + 1))
     fragment.append(random_num)
-print(f"Maximum proportion of fragmented TE loci of each TE family set by default: {maximum}")
-print(f"Minimum proportion of fragmented TE loci of each TE family set by default: {minimum}")
+print(f"Maximum chance of keeping a TE insertion intact as 100% integrity in each TE family: {intact}")
+print(f"Minimum chance of keeping a TE insertion intact in each TE family: 0")
+print(f"Maximum proportion of fragmented TE loci of each TE family: {maximum}")
+print(f"Minimum proportion of fragmented TE loci of each TE family: {minimum}")
 
 # nest TE loci (as a proportion to total TE loci of the family; only apply for Copia and Gypsy)
 print("\n")
