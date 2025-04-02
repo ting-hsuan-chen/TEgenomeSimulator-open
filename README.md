@@ -5,8 +5,23 @@ This tool is released under the GPL license to promote advancements in TE resear
 
 You are welcome to raise issues for inquiries regarding TEgenomeSimulator or contribute to its development and improvement. For more details, please refer to [Contributing Guideline](./.github/contributing_guide.md).
 
+## What's new in the latest TEgenomeSimulator (v1.0.0):
+- A new flag **`--to_mask`** under Custom Genome Mode (`--mode 1` or `-M 1`) to enable the use of RepeatMasker for masking TEs in user-provided real genome, followed by TE removal to generate the TE-depleted genome. 
+  - This option has to be used in conjunction with `--repeat2` which specifies the TE library file for repeat masking. 
+  - Note that users still need to specify the TE library used for simulation via the argument `--repeat`.
+
+- A **new distribution for the probility of sequence integrity** has been implemented for Random Synthesized Genome Mode(`--mode 0` or `-M 0`) and Custom Genome Mode.
+  - TEgenomeSimulator now uses beta distribution to model the sequence integrity of each TE family.
+  - The alpha and beta values are 0.7 and 0.5 by default to create an asymatric U-shape distribution, in which the right arm (high integrity) is taller than the left arm (low integrity) of the the U-shape. You can use this [online tool](https://homepage.stat.uiowa.edu/~mbognar/applets/beta.html) to see how the distribution would look like with different alpha and beta value.
+  - The simulator also allow user to specify the proportion of total TE copies to be intact TE insertion, using the parameter `-i` or `--intact`. Intact TE loci are kept in the same length as the original TE family sequence.
+
+- A new mode, **Genome Approximation Mode** (`--mode 2` or `-M 2`), to allow users to create a simulated genome in which the TE composition is simulated in a way to approximate the real TE make-up in the original genome. 
+  - TEgenomeSimulator does this by masking and removing the original TEs using the TE library supplied via `--repeat2`, and then it simulates TE mutations based on the prior information obrained from RepeatMasker output file. 
+  - The rest of the steps, random and nested TE insertions are the same as the first two modes. 
+  - Note that the simulator uses the TE library specified by `--repeat` argument for TE mutation and simulation. Therefore it is crucial to specify the same TE library with `--repeat` and `--repeat2` for the purpose of this genome approximation simulation.
+
 ## Introduction
-TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). TEgenomeSimulator adopted and modified scripts from the original [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval), and further developed with several new functionalities. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
+TEgenomeSimulator was initially created based on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). TEgenomeSimulator adopted and modified scripts from the original [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval), and further developed with several new functionalities. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
 
 | Features | denovoTE-eval | TEgenomeSimulator |
 |:---------|:-------------:|:-----------------:|
@@ -41,26 +56,42 @@ TEgenomeSimulator was created based on [Matias Rodriguez & Wojciech Makałowski.
 <sup>d</sup> To allow TEgenomeSimulator to include TE superfamily and class/subclass information in the final TE gff file, please follow the header format `>{TE_family}#{TE_subclass}/{TE_superfamily}`, such as `>ATCOPIA10#LTR/Copia`.
 
 ### TEgenomeSimulator flowchart
-<img src="TEgenomeSimulator.png" width=720>
+<img src="TEgenomeSimulator_20250331.png" width=720>
 
 ### Run modes
-TEgenomeSimulator has two modes to be specified by user using the argument `-M` or `--mode`:
-1) `-M 0` or`--mode 0`: **Random Synthesized Genome Mode**. This mode synthesizes a random genome with multiple chromosomes that are later inserted with TEs randomly. With this mode, user must use `-c` or `--chridx` to provide a chromosome index csv file in the formate of the file [rabdin_genome_chr_index.csv](./test/input/random_genome_chr_index.csv), which contains 3 columns separated by commas, representing the desired chromosome id, chromosome length, and GC content.
-2) `-M 1` or`--mode 1`: **Custom Genome Mode**. It utilises a user-provided genome containing multiple chromosomes where TE bases had been removed, providing a customised genome canvas for random TE insertion. When this mode is enabled, the user must use `-g` or `--genome` to provide a genome fasta file, e.g. [Dondhond.chromosomes.only.fa.nonTE.2chrs](./test/input/Donghong.chromosomes.only.fa.nonTE.2chrs.gz), which contains TE-depleted chromosome 1 and 2 from the published [_Actinidia chinensis_ var. 'Donghong'](https://doi.org/10.1016/j.molp.2022.12.022). In this fasta file, the TE sequences on the original chromosome 1 and 2 have been detected and removed. 
+TEgenomeSimulator has three modes to be specified by user using the argument `-M` or `--mode`:
+
+1) `-M 0` or`--mode 0`: **Random Synthesized Genome Mode**. This mode synthesizes a random genome with multiple chromosomes that are later inserted with TEs randomly. With this mode, user must use `-c` or `--chridx` to provide a chromosome index csv file in the formate of the file [rabdin_genome_chr_index.csv](./test/input/random_genome_chr_index.csv), which contains 3 columns separated by commas, representing the desired chromosome id, chromosome length, and GC content. The simulator uses these information to synthesize chromosome sequences, followed with the simulation of TE sequence mutaion, random TE insertion and nested TE insertion (see the blue route in the flowchart).
+
+2) `-M 1` or`--mode 1`: **Custom Genome Mode**. 
+  
+    a) Running this mode without `--to_mask`:
+    
+    It utilises a user-provided genome containing multiple chromosomes where TE bases had been removed, providing a customised genome canvas for random TE insertion (see the hollow grey route in the flowchart). When this mode is enabled, the user must use `-g` or `--genome` to provide a genome fasta file, e.g. [Dondhond.chromosomes.only.fa.nonTE.2chrs](./test/input/Donghong.chromosomes.only.fa.nonTE.2chrs.gz), which contains TE-depleted chromosome 1 and 2 from the published [_Actinidia chinensis_ var. 'Donghong'](https://doi.org/10.1016/j.molp.2022.12.022). In this fasta file, the TE sequences on the original chromosome 1 and 2 have been detected and removed. 
+
+    b) Running this mode with `--to_mask`:
+
+    When the flag `--to_mask` is specified, TEgenomeSimulator allows user to provide a real genome where TE nucleoties have not been masked as 'Xs'. It does this job for users by using RepeatMasker followed by TE removal. The downstream TE mutation simulation, and random and nested TE insertions are the same as in the first mode (see the solid grey route in the flowchart).
+
+3) `-M 2` or`--mode 2`: **Genome Approximation Mode**. It uses RepeatMaker to mask TEs and then removes TE nucleotides from the genome provided by user. Meanwhile it analyzes the TE composition in the original genome and implements this prior information to the simulation of TE mutations (see the green route in the flowchart). When this mode is enabled, the user must use `-g` or `--genome` to provide a genome fasta file, e.g. [GCF_000001735.4_TAIR10.1_genomic.fna](./test/input/GCF_000001735.4_TAIR10.1_genomic.fna.gz), which was downloaded from NCBI. Users need to specify the TE library by both `--repeat` and `--repeat2` to ensure that the simulator uses the same TE library for TE masking/removal and simulation.
+
 
 ### Other required input files/information
 - `-p` or `--prefix`: a prefix for your simulation
+- `-S` or `--sif_path`: the path to dfam-tetools.sif for running RepeatMasker (required when using `--to_mask` or running `--mode 2`).
 - `-r` or `--repeat`: a fasta file containing TE family sequences (i.e. a TE library) to be mutated and then inserted into genome. The TE lib in our test [combined_curated_TE_lib_ATOSZM_selected.fasta](./test/input/combined_curated_TE_lib_ATOSZM_selected.fasta.gz) was created by concatenating TE library from a) _Arabidopsis thaliana_, b) _Oryza sativa_, and c) _Zea maize_ before using bbmap2 to remove exact duplicates and using CDHIT to generate a non-redundat TE lib for simulation test. The _A. thaliana_ and _Z. maize_ TE libraries were obtained from [EDTA repo (Ou et al. 2019)](https://github.com/oushujun/EDTA/tree/master/database) and the _O. sativa_ TE library was from [RepeatModeller2 (Flynn et al. 2020)](https://github.com/jmf422/TE_annotation/tree/master/benchmark_libraries/RM2).
+- `r2` or `--repeat2`: the TE lib fasta file for TE masking and removal. It is required when `--to_mask` is enabled under `--mode 1` or when `--mode 2` is chosen.
 - `-m` or `--maxcp`: an interger representing the maximum copy to be simulated for a TE family
 - `-n` or `--mincp`: an integer representing the minimum copy to be simulated for a TE family
 - `-c` or `--chridx`: the chromosome index file if **Random Synthesized Genome Mode** (`--mode 0`) is enabled. See the previous section **Run modes**.
 - `-g` or `--genome`: the genome fasta file if **Custom Genome Mode** (`--mode 1`) is enabled. See the previous section **Run modes**.
+- `-a` or `--alpha`: a float number specifying the alpha value for generating beta distribution. Default is 0.7.
+- `-b` or `--beta`: a float number specifying the beta value for generating beta distribution. Default is 0.5.
+- `-i` or `--insert`: a float number between 0 and 1 representing the proportion of TE copies to be intact insertion. Default is 0.001 (i.e. 0.1%).
 - `-s` or `--seed`: an integer to specify the seed value. Default is 1.
+- `-t` or `--threads`: an integer as the number of CPUs to be used for RepeatMasker.
 - `-o` or `--outdir`: the path to the output directory
 
-### Two steps
-1) **Step 1**: The first step of TEgenomeSimulator is to perform non-overlap random TE insertion into the random synthesized or custom genome sequence.
-2) **Step 2**: The second step is to perform nested TE insertion.
 
 ### Output files from TEgenomeSimulator
 - **TElib_sim_list.table**: A tab-delimited table storing the parameters for simulating TE mutation. See example at ./test/output/ 
@@ -89,33 +120,63 @@ pip install .
 
 ### 3. Usage
 After installation, you can take a look at the arguments of TEgenomeSimulator by typing `tegnomesimulator --help`. 
+
+### **Important!** 
+- For running modes that require RepeatMasker, users need to check if they've installed **TEtools** as a container. Checkout [TEtools github repository](https://github.com/Dfam-consortium/TETools) for TEtools installation. 
+- TEgenomeSimulator uses samtools to index FASTA files. Please make sure that samtools has also been installed. The easist way is to intall it via `conda install`
+- For powerPlant users of Plant and Food Research:
+  - You can use this path as the TEtools sif image: `${my_workspace}/bin/TETools/dfam-tetools.sif`.
+  - Don't forget to load singularity module via `ml singularity/3`
+  - Remember to also activate samtools via `ml samtools/1.20`
+
+The following shows the man-page of TEgenomeSimulator when typing `tegenomesimulator --help`.
+
 ```text
-usage: tegenomesimulator [-h] -M {0,1} -p PREFIX -r REPEAT -m MAXCP -n MINCP [-c CHRIDX] [-g GENOME] [-s SEED] -o OUTDIR
+usage: TEgenomeSimulator.py [-h] -M {0,1,2} [-k] [-S SIF_PATH] -p PREFIX -r REPEAT [-r2 REPEAT2] [-m MAXCP] [-n MINCP]
+                            [-c CHRIDX] [-g GENOME] [-a ALPHA] [-b BETA] [-i INTACT] [-s SEED] [-t THREADS] -o OUTDIR
 
 main arguments of TEgenomeSimulator to simulate TE mutation and insertion into genome.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -M {0,1}, --mode {0,1}
-                        Mode for genome simulation (either 0 or 1).
+  -M {0,1,2}, --mode {0,1,2}
+                        Mode for genome simulation (choose from 0, 1 or 2).
+  -k, --to_mask         Mask and remove TE from provided genome when enabled
+  -S SIF_PATH, --sif_path SIF_PATH
+                        Path to dfam-tetools.sif for running RepeatMasker (required when using --to_mask).
   -p PREFIX, --prefix PREFIX
                         Prefix for output files.
   -r REPEAT, --repeat REPEAT
-                        TE family fasta file.
+                        TE family fasta file for random insertion simulation.
+  -r2 REPEAT2, --repeat2 REPEAT2
+                        TE family fasta file for masking genome (required when using --to_mask).
   -m MAXCP, --maxcp MAXCP
-                        Maximum copies of TE family.
+                        Maximum copies of TE family (default is 10).
   -n MINCP, --mincp MINCP
-                        Minimum copies of TE family.
+                        Minimum copies of TE family (default is 1).
   -c CHRIDX, --chridx CHRIDX
                         Chromosome index file if mode 0 is selected.
   -g GENOME, --genome GENOME
-                        Genome fasta file if mode 1 is selected.
+                        Genome fasta file if mode 1 or 2 is selected.
+  -a ALPHA, --alpha ALPHA
+                        Alpha value for the beta distribution used for fragmentation simulation (default is 0.7).
+  -b BETA, --beta BETA  Beta value for the beta distribution used for fragmentation simulation (default is 0.5).
+  -i INTACT, --intact INTACT
+                        Maximum probability of inserting intact TEs per family (default is 0.001; i.e. 0.1 percent).
   -s SEED, --seed SEED  Random seed (default is 1).
+  -t THREADS, --threads THREADS
+                        Threads for running RepeatMasker (default is 1)
   -o OUTDIR, --outdir OUTDIR
                         Output directory.
 ```
 
 ## Run TEgenomeSimulator using test data
+Before running tests, remember to unpack the compressed files in the test/input folder.
+```
+cd TEgenomeSimulator
+gzip -d -k ../test/input/*
+```
+
 ### Random Synthesized Genome Mode 
 ```bash
 cd TEgenomeSimulator
@@ -127,10 +188,11 @@ min=1
 outdir="../test/output"
 mkdir -p $outdir
 
-python3 tegenomesimulator.py -M 0 -p $prefix -c $chridx -r $repeat -m $max -n $min -o $outdir
+tegenomesimulator -M 0 -p $prefix -c $chridx -r $repeat -m $max -n $min -o $outdir
 ```
 
 ### Custom Genome Mode
+#### Running without `--to_mask`
 ```bash
 cd TEgenomeSimulator
 prefix=test_custom
@@ -141,12 +203,85 @@ min=1
 outdir="../test/output"
 mkdir -p $outdir
 
-python3 tegenomesimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $min -o $outdir
+tegenomesimulator -M 1 -p $prefix -g $genome -r $repeat -m $max -n $min -o $outdir
 ```
 
-### Custom Genome Mode 2
-- Test file: Arabidopsis genome downloaded from ncbi at https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/accession/GCF_000001735.4/
-- Arabidopsis TE lib acquired from https://github.com/oushujun/EDTA/blob/master/database/
+#### Running with `--to_mask`
+
+- Use test files provided in the test folder: 
+  - Arabidopsis genome downloaded from ncbi at https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/accession/GCF_000001735.4/
+  - Arabidopsis TE lib acquired from https://github.com/oushujun/EDTA/blob/master/database/
+
+```bash
+prefix=test_custom_tomask
+genome="../test/input/GCF_000001735.4_TAIR10.1_genomic.fna"
+repeat="../test/input/athrep.updated.nonredun.fasta"
+outdir="../test/output"
+mkdir -p $outdir
+
+tetools=${path_to_your_dfam-tetools.sif}
+THREADS=20
+
+cd $outdir
+tegenomesimulator -M 1 --to_mask -S $tetools -p $prefix -g $genome -r $repeat -r2 $repeat -o $outdir -t $THREADS
+```
+
+The following code block is a demonstration for powerPlant users of Plant and Food Research.
+```bash
+ml singularity/3
+ml samtools/1.20
+
+prefix=test_custom_tomask
+genome="../test/input/GCF_000001735.4_TAIR10.1_genomic.fna"
+repeat="../test/input/athrep.updated.nonredun.fasta"
+outdir="../test/output"
+mkdir -p $outdir
+
+tetools=${my_workspace}/bin/TETools/dfam-tetools.sif
+
+JOB=TEgenomeSimulator
+TIME="00:10:00"
+THREADS=20
+MEM=5G
+cd $outdir
+sbatch --cpus-per-task=$THREADS --mem $MEM -t $TIME -J $JOB -o $JOB.out -e $JOB.err --wrap "tegenomesimulator -M 1 --to_mask -S $tetools -p $prefix -g $genome -r $repeat -r2 $repeat -o $outdir -t $THREADS"
+```
+
+### Genome Approximation Mode
+```bash
+prefix=test_genome_approx
+genome="../test/input/GCF_000001735.4_TAIR10.1_genomic.fna"
+repeat="../test/input/athrep.updated.nonredun.fasta"
+outdir="../test/output"
+mkdir -p $outdir
+
+tetools=${path_to_your_dfam-tetools.sif}
+THREADS=20
+
+cd $outdir
+tegenomesimulator -M 2 -S $tetools -p $prefix -g $genome -r $repeat -r2 $repeat -o $outdir -t $THREADS
+```
+
+The following code block is a demonstration for powerPlant users of Plant and Food Research.
+```bash
+ml singularity/3
+ml samtools/1.20
+
+prefix=test_genome_approx
+genome="../test/input/GCF_000001735.4_TAIR10.1_genomic.fna"
+repeat="../test/input/athrep.updated.nonredun.fasta"
+outdir="../test/output"
+mkdir -p $outdir
+
+tetools=${my_workspace}/bin/TETools/dfam-tetools.sif
+
+JOB=TEgenomeSimulator
+TIME="00:10:00"
+THREADS=20
+MEM=5G
+cd $outdir
+sbatch --cpus-per-task=$THREADS --mem $MEM -t $TIME -J $JOB -o $JOB.out -e $JOB.err --wrap "tegenomesimulator -M 2 -S $tetools -p $prefix -g $genome -r $repeat -r2 $repeat -o $outdir -t $THREADS"
+```
 
 
 ## References:
@@ -154,6 +289,9 @@ python3 tegenomesimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $m
 - [denovoTE-eval: https://github.com/IOB-Muenster/denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval)
 - [Ou et al. Benchmarking transposable element annotation methods for creation of a streamlined, comprehensive pipeline. 2019 Genome Biology](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1905-y)
 - [Flynn et al. RepeatModeler2 for automated genomic discovery of transposable element families. 2020 PNAS](https://doi.org/10.1073/pnas.1921046117)
+- Smit, AFA, Hubley, R & Green, P. **RepeatMasker Open-4.0.** 2013-2015 <http://www.repeatmasker.org>.
+- [Li et al. The Sequence Alignment/Map format and SAMtools. 2009 Bioinformatics](https://doi.org/10.1093/bioinformatics/btp352)
+
 
 ## Credits, Funding and Acknowledgement
 - **Original Development**: TEgenomeSimulator was originally scripted by Ting-Hsuan Chen [@ting-hsuan-chen](https://github.com/ting-hsuan-chen).
@@ -163,10 +301,10 @@ python3 tegenomesimulator.py -M 1 -p $prefix -g $genome -r $repeat -m $max -n $m
 
 
 ## Citations
-If you use TEgenomeSimulator for your work, please cite it as:
-> **TEgenomeSimulator: A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.** \
-> Ting-Hsuan Chen, Olivia Angeline-Bonnet, Cecilia Deng, Susan Thomson \
-> zenodo. 2024. doi: 10.5281/zenodo.14744027
+- If you use TEgenomeSimulator v0.1.0 for your work, please cite it as:
+  > **TEgenomeSimulator: A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.** \
+  > Ting-Hsuan Chen, Olivia Angeline-Bonnet, Cecilia Deng, Susan Thomson \
+  > zenodo. 2024. doi: 10.5281/zenodo.14744027
 
 ## Contact person
 Ting-Hsuan Chen: ting-hsuan.chen@plantandfood.co.nz
