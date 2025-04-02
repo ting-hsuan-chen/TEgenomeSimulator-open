@@ -144,7 +144,7 @@ def run_summarise_rm_out(prefix, rmasker_tbl, libindex, rmasker_out, outdir):
 
 
 # Function to call the prep_sim_TE_lib.py script to generate the TE library table
-def run_prep_sim_TE_lib(prefix, repeat, maxcp, mincp, intact, seed, outdir):
+def run_prep_sim_TE_lib(prefix, repeat, maxcp, mincp, maxidn, minidn, maxsd, minsd, intact, seed, outdir):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/prep_sim_TE_lib.py')
     final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
@@ -155,6 +155,10 @@ def run_prep_sim_TE_lib(prefix, repeat, maxcp, mincp, intact, seed, outdir):
             '-r', repeat, 
             '-m', str(maxcp),
             '-n', str(mincp),
+            '--maxidn', str(maxidn),
+            '--minidn', str(minidn),
+            '--maxsd', str(maxsd),
+            '--minsd', str(minsd),
             '-i', str(intact),
             '-s', str(seed),
             '-o', outdir
@@ -309,11 +313,15 @@ def main():
     parser.add_argument('-r2', '--repeat2', type=str, help="TE family fasta file for masking genome (required when using --to_mask).")
     parser.add_argument('-m', '--maxcp', type=int, default=10, help="Maximum copies of TE family (default is 10).")
     parser.add_argument('-n', '--mincp', type=int, default=1, help="Minimum copies of TE family (default is 1).")
+    parser.add_argument('--maxidn', type=int, default=95, help="The upper bound of mean sequence identity to be sampled for each TE family (default is 95; i.e. 95 percent).")
+    parser.add_argument('--minidn', type=int, default=80, help="The lower bound of mean sequence identity to be sampled for each TE family (default is 80; i.e. 80 percent).")
+    parser.add_argument('--maxsd', type=int, default=20, help="The upper bound of standard deviation of mean identity to be sampled for each TE family (default is 20).")
+    parser.add_argument('--minsd', type=int, default=1, help="The lower bound of standard deviation of mean identity to be sampled for each TE family (default is 1).")
     parser.add_argument('-c', '--chridx', type=str, help="Chromosome index file if mode 0 is selected.")
     parser.add_argument('-g', '--genome', type=str, help="Genome fasta file if mode 1 or 2 is selected.")
     parser.add_argument('-a', '--alpha', type=float, default=0.7, help="Alpha value for the beta distribution used for fragmentation simulation (default is 0.7).")
     parser.add_argument('-b', '--beta', type=float, default=0.5, help="Beta value for the beta distribution used for fragmentation simulation (default is 0.5).")
-    parser.add_argument('-i', '--intact', type=float, default=0.001, help="Maximum probability of inserting intact TEs per family (default is 0.001; i.e. 0.1%).")
+    parser.add_argument('-i', '--intact', type=float, default=0.001, help="Maximum probability of inserting intact TEs per family (default is 0.001; i.e. 0.1 percent).")
     parser.add_argument('-s', '--seed', type=int, default=1, help="Random seed (default is 1).")
     parser.add_argument('-t', '--threads', type=int, default=1, help="Threads for running RepeatMasker (default is 1)")
     parser.add_argument('-o', '--outdir', type=str, help="Output directory.", required=True)
@@ -351,23 +359,37 @@ def main():
 
     # Output parsed arguments (for demonstration)
     print(f"Mode: {args.mode}")
-    if args.to_mask:
-        print(f"To mask genome? {args.to_mask} enabled. Yes.")
-    else:
-        print(f"To mask genome? No")
+    if args.mode == 0:
+        print(f"Running Random Synthesized mode.")
+    elif args.mode == 1:
+        print(f"Running Custom Genome mode.")
+        if args.to_mask:
+            print(f"To mask genome? {args.to_mask} enabled. Yes.")
+        else:
+            print(f"To mask genome? No.")
+    elif args.mode == 2:
+        print(f"Running Genome Approximation mode. TEgenomeSimulator will mask the genome under this mode.")
+        
     print(f"Prefix: {args.prefix}")
     print(f"Repeat: {args.repeat}")
-    print(f"Repeat2: {args.repeat2}")
-    print(f"Max Copies: {args.maxcp}")
-    print(f"Min Copies: {args.mincp}")
+    if args.mode == 1 or args.mode == 2:
+        print(f"Repeat2: {args.repeat2}")
     print(f"Chromosome Index: {args.chridx}")
     print(f"Genome File: {args.genome}")
     print(f"Alpha: {args.alpha}")
     print(f"Beta: {args.beta}")
+
     if args.mode == 0 or args.mode == 1:
+        print(f"Max Copies: {args.maxcp}")
+        print(f"Min Copies: {args.mincp}")        
+        print(f"Upper bound of mean identity: {args.maxidn}")
+        print(f"Lower bound of mean identity: {args.minidn}")
+        print(f"Upper bound of sd of mean identity: {args.maxsd}")
+        print(f"Lower bound of sd of mean ideneity: {args.minsd}")
         print(f"Max chance of intact insertion: {args.intact}")
     else:
-        print(f"Max chance of intact insertion evaluated from repeatmasker output.")
+        print(f"TE copy number, mean sequence identity, sd, and max chance of intact insertion evaluated from repeatmasker output.")
+
     print(f"Seed: {args.seed}")
     print(f"Output Directory: {args.outdir}")
     
@@ -377,7 +399,7 @@ def main():
 
     # Call the prep_sim_TE_lib.py script to generate the TE library table
     if args.mode == 0 or args.mode == 1: 
-        run_prep_sim_TE_lib(args.prefix, args.repeat, args.maxcp, args.mincp, args.intact, args.seed, args.outdir)
+        run_prep_sim_TE_lib(args.prefix, args.repeat, args.maxcp, args.mincp, args.maxidn, args.minidn, args.maxsd, args.minsd, args.intact, args.seed, args.outdir)
 
     # Call the prep_yml_config.py script to generate the config file using the TE library table generated from previous step or from the repeatmasker summary file
     te_table = os.path.join(final_out, "TElib_sim_list.table")

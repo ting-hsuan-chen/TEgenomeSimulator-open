@@ -18,6 +18,14 @@ parser.add_argument("-m", "--maxcp", type=int,
                     help="maximum copy number to be simulated for a TE family")
 parser.add_argument("-n", "--mincp", type=int,
                     help="minimum copy number to be simulated for a TE family")
+parser.add_argument('--maxidn', type=int, 
+                    help="The upper bound of mean sequence identity to be sampled for each TE family.")
+parser.add_argument('--minidn', type=int, 
+                    help="The lower bound of mean sequence identity to be sampled for each TE family.")
+parser.add_argument('--maxsd', type=int, 
+                    help="The upper bound of standard deviation of mean identity to be sampled for each TE family.")
+parser.add_argument('--minsd', type=int, 
+                    help="The lower bound of standard deviation of mean identity to be sampled for each TE family.")
 parser.add_argument("-i", "--intact", type=float,
                     default=0.001, help="maximum proportion of intact TEs per TE family (default is 0.001, i.e. 0.1%)")
 parser.add_argument('-s', '--seed', type=int, 
@@ -30,6 +38,10 @@ prefix = args.prefix
 te_fa = args.repeat
 max_cp = args.maxcp
 min_cp = args.mincp
+max_idn = args.maxidn
+min_idn = args.minidn
+max_sd = args.maxsd
+min_sd = args.minsd
 intact = args.intact
 seed = args.seed
 out_dir = args.outdir
@@ -107,27 +119,27 @@ print(f"Minimum copy number set by user: {args.maxcp}")
 print("\n")
 print("## Random chosing the averaged sequence identity for each TE family ##")
 identity = []
-minimum = 80
-maximum = 95
+minimum = min_idn #default 80
+maximum = max_idn #default 95
 n = len(te_family)
 for i in range(n):
     random_num = random.choice(range(minimum, maximum + 1))
     identity.append(random_num)
-print(f"Maximum averaged sequence identity set by default: {maximum}")
-print(f"Minimum averaged sequence identity set by default: {minimum}")
+print(f"Maximum averaged sequence identity: {maximum}")
+print(f"Minimum averaged sequence identity: {minimum}")
 
 # standard deviation of identity
 print("\n")
 print("## Random chosing the standard deviation of averaged sequence identity for each TE family ##")
 sd = []
-minimum = 1
-maximum = 20
+minimum = min_sd #default 1
+maximum = max_sd #default 20
 n = len(te_family)
 for i in range(n):
     random_num = random.choice(range(minimum, maximum + 1))
     sd.append(random_num)
-print(f"Maximum standard deviation of averaged sequence identity set by default: {maximum}")
-print(f"Minimum standard deviation of averaged sequence identity set by default: {minimum}")
+print(f"Maximum standard deviation of averaged sequence identity: {maximum}")
+print(f"Minimum standard deviation of averaged sequence identity: {minimum}")
     
 # indel (as a proportion to total SNP = substitution + indel)
 print("\n")
