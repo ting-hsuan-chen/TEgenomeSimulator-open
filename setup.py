@@ -9,8 +9,8 @@ setup(
     long_description_content_type='text/markdown',  
     author='Ting-Hsuan Chen', 
     author_email='Ting-Hsuan.Chen@plantandfood.co.nz',
-    url='https://github.com/PlantandFoodResearch/TEgenomeSimulator',
-    license='MIT',
+    url='https://github.com/Plant-Food-Research-Open/TEgenomeSimulator',
+    license='GPL',
     packages=find_packages(),
     #package_dir={'': 'TEgenomeSimulator'},  # Specify the location of the package
     install_requires=[
