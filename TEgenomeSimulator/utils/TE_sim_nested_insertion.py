@@ -7,7 +7,7 @@ import re
 import numpy
 from Bio import SeqIO, Seq
 from pathlib import Path
-from TE_sim_random_insertion import parse_random_genome_yaml, parse_custom_genome_yaml, load_repeats_chr, generate_mismatches, add_indels, add_base_changes
+from TE_sim_random_insertion import parse_random_genome_yaml, parse_custom_genome_yaml, load_repeats_chr, load_repeats_chr_m2, generate_mismatches, add_indels, add_base_changes
 from TE_sim_random_insertion import get_identity, create_TSD, fragment, fragment_m2
 
 #Turn gff table into a big list where each item represent a row in gff table
@@ -118,6 +118,7 @@ def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode)
             new_nest_seq_tsd_frag, frag, cut = fragment(new_nest_seq_tsd, alpha, beta)
         if mode == 2:
             new_nest_seq_tsd_frag, frag, cut = fragment_m2(new_nest_seq_tsd, repeats[k].integrities)
+            #new_nest_seq_tsd_frag, frag, cut = fragment(new_nest_seq_tsd, alpha, beta)
             
         nest_len = len(new_nest_seq_tsd_frag)
         #nest_name = repeats[k].name
@@ -288,7 +289,12 @@ def main():
     isrt_te = load_isrt_te_fa(isrt_te_fasta)
     
     #Load non-redundant TE library and the gff file containing all TE insertions
-    repeats_dict = load_repeats_chr(params_chr)
+    if args.mode == 0 or args.mode == 1:
+        repeats_dict = load_repeats_chr(params_chr)
+    elif args.mode == 2:
+        repeats_dict = load_repeats_chr_m2(params_chr)
+        #repeats_dict = load_repeats_chr(params_chr)
+
     gff = load_gff(gff_file)
     
     #Generate nested insertion

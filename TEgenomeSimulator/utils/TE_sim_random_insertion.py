@@ -68,8 +68,33 @@ def load_repeats(params):
             repeats_dict[name] = repeat
     return repeats_dict
 
-#Load collection of repeats and params for chrs simulation (function created by THC)
+#Load collection of repeats and params for chrs simulation for mode 0 and 1 (function created by THC)
 def load_repeats_chr(params_chr):
+    chr_id = list(params_chr['chrs'].keys())
+    repeats_dict = {}
+    fasta = SeqIO.index(params_chr['rep_fasta'], "fasta")
+    with open(params_chr['rep_list'], 'r') as repeats_file:
+        next(repeats_file)
+        for line in repeats_file:
+            elem = line.rstrip().split("\t")
+            name = elem[0]
+            subclass = elem[1]
+            superfamily = elem[2]
+            sequence = str(fasta[name].seq).upper()
+            num_rep = int(elem[3])
+            identity = int(elem[4])
+            sd = int(elem[5])
+            indels = int(elem[6])
+            tsd = [int(elem[7].rstrip().split(",")[0]), int(elem[7].rstrip().split(",")[1])]
+            frag = float(elem[9])
+            nest = int(elem[10])
+            integrity_list = []
+            repeat = Repeat(name, subclass, superfamily, sequence, num_rep, identity, sd, indels, tsd, frag, nest, integrity_list)
+            repeats_dict[name] = repeat
+    return repeats_dict
+
+#Load collection of repeats and params for chrs simulation for mode 2 (function created by THC)
+def load_repeats_chr_m2(params_chr):
     chr_id = list(params_chr['chrs'].keys())
     repeats_dict = {}
     fasta = SeqIO.index(params_chr['rep_fasta'], "fasta")
@@ -334,20 +359,23 @@ def create_TSD(tsd_min, tsd_max, identity, indels):
 #     return seq[cut_length:], element_size, cut_length
 
 
-def fragment(seq, base_alpha=0.7, base_beta=0.5, target_length=4000, power=1.5):
-    """Fragment TE sequence using a dynamically adjusted beta distribution with power adjustment."""
+#def fragment(seq, base_alpha=0.5, base_beta=0.7, target_length=4000, power=1.5):
+def fragment(seq, alpha=0.5, beta=0.7):
+    #"""Fragment TE sequence using a dynamically adjusted beta distribution with power adjustment."""
+    """Fragment TE sequence using a beta distribution."""
     len_seq = len(seq)
 
     # Dynamically adjust alpha and beta based on sequence length (tested as run4)
-    alpha = base_alpha * (len_seq / target_length)
-    beta = base_beta #* (len_seq / target_length)
+    #alpha = base_alpha #* (len_seq / target_length)
+    #beta = base_beta #* (len_seq / target_length)
 
     # Sample from beta and apply power transformation
     raw_sample = numpy.random.beta(alpha, beta)
-    adjusted_sample = raw_sample ** power  # Raising to power deepens the valley
+    #adjusted_sample = raw_sample ** power  # Raising to power deepens the valley
 
     # Convert to element size
-    element_size = int(numpy.clip(adjusted_sample * 99 + 1, 0, 100))
+    #element_size = int(numpy.clip(adjusted_sample * 99 + 1, 1, 100))
+    element_size = int(numpy.clip(raw_sample * 99 + 1, 1, 100))
 
     # Calculate cut length
     cut_length = int(len_seq * ((100 - element_size) / 100.0))
@@ -359,12 +387,12 @@ def fragment_m2(seq, integrity_lst):
     """Fragment TE sequence using prior info from repeatmasker output."""
     len_seq = len(seq)
     length_ratio = random.choice(integrity_lst)
-    element_size = int((1 - length_ratio) * 100)
+    #element_size = int((1 - length_ratio) * 100)
     
     # Calculate the length of the TE sequence in bp to be removed
     cut_length = int(len_seq * (1 - length_ratio))
 
-    return seq[cut_length:], element_size, cut_length
+    return seq[cut_length:], length_ratio*100 , cut_length
 
 ##Generate new sequence including the repeats in the random one (modified by THC)
 def generate_sequence(repeats_dict, rand_rep_pos, rand_seq, total_names_rep, alpha, beta, mode):
@@ -419,6 +447,10 @@ def generate_sequence(repeats_dict, rand_rep_pos, rand_seq, total_names_rep, alp
         if mode == 2:
             integrity_lst = repeats_dict[m[0]].integrities
             new_repeat_seq_frag, frag, cut_length = fragment_m2(new_repeat_seq, integrity_lst)
+            #if m[1] == 1: # remove this line 20250415
+            #    new_repeat_seq_frag, frag, cut_length = fragment(new_repeat_seq, alpha, beta) # remove this line 20250415
+            #else: # remove this line 20250415
+            #    new_repeat_seq_frag = new_repeat_seq # remove this line 20250415
 
         #Apply strand sense
         if strand == "-":
@@ -528,8 +560,8 @@ def main():
     # Define arguments
     parser.add_argument('-M', '--mode', type=int, help="Mode for genome simulation (either 0 or 1).", required=True)
     parser.add_argument('-p', '--prefix', type=str, help="Prefix for output files.", required=True)
-    parser.add_argument('-a', '--alpha', type=float, default=0.7, help="Alpha value for the beta distribution used for fragmentation simulation.")
-    parser.add_argument('-b', '--beta', type=float, default=0.5, help="Beta value for the beta distribution used for fragmentation simulation.")
+    parser.add_argument('-a', '--alpha', type=float, default=0.5, help="Alpha value for the beta distribution used for fragmentation simulation.")
+    parser.add_argument('-b', '--beta', type=float, default=0.7, help="Beta value for the beta distribution used for fragmentation simulation.")
     parser.add_argument('-o', '--outdir', type=str, help="Output directory.", required=True)
      
     # Parse arguments
@@ -572,7 +604,12 @@ def main():
         chrs_dict = load_custom_genome(params_chr)
 
     #Load repeat sequences
-    repeats_dict = load_repeats_chr(params_chr)
+    if args.mode == 0 or args.mode == 1:
+        repeats_dict = load_repeats_chr(params_chr)
+    elif args.mode == 2:
+        repeats_dict = load_repeats_chr_m2(params_chr)  
+        #repeats_dict = load_repeats_chr(params_chr)  
+
     #Assign TE coordinates randomly
     repeats_coord = assign_chr_coord_repeats(params_chr, repeats_dict)
     #Shuffle the order the repeats to be inserted into the genome
