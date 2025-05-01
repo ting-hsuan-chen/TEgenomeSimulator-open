@@ -387,7 +387,9 @@ def fragment_m2(seq, integrity_lst):
     """Fragment TE sequence using prior info from repeatmasker output."""
     len_seq = len(seq)
     length_ratio = random.choice(integrity_lst)
-    #element_size = int((1 - length_ratio) * 100)
+    # Make sure length_ratio <= 1
+    if length_ratio > 1:
+        length_ratio = 1
     
     # Calculate the length of the TE sequence in bp to be removed
     cut_length = int(len_seq * (1 - length_ratio))
