@@ -9,16 +9,19 @@ You are welcome to raise issues for inquiries regarding TEgenomeSimulator or con
 - A new flag **`--to_mask`** under Custom Genome mode (`--mode 1` or `-M 1`) to enable the use of RepeatMasker for masking TEs in user-provided real genome, followed by TE removal to generate the TE-depleted genome. 
   - This option has to be used in conjunction with `--repeat2` which specifies the TE library file for repeat masking. 
   - Note that users still need to specify the TE library used for simulation via the argument `--repeat`.
+  - Users may specify different TE libraries or use the same library for `--repeat` and `--repeat2`. 
 
-- A **new distribution for the probility of sequence integrity** has been implemented for Random Synthesized Genome mode(`--mode 0` or `-M 0`) and Custom Genome mode.
+- A **new distribution for the probility of sequence integrity** has been implemented for Random Synthesized Genome mode(`--mode 0` or `-M 0`) and Custom Genome mode (`--mode 1` or `-M 1`).
+  - Here **sequence integrity** referes to the length ratio of inserted TE sequences relative to the consensus sequence. For example, if a TE sequence to be inserted into the synthetic genome is 800bp and the corresponding consensus sequence is 1kb, the integrity is 0.8.
   - TEgenomeSimulator now uses beta distribution to model the sequence integrity of each TE family.
-  - The alpha and beta values are 0.5 and 0.7 by default to create an asymatric U-shape distribution, in which the left arm (low integrity) is taller than the right arm (high integrity) of the the U-shape. You can use this [online tool](https://homepage.stat.uiowa.edu/~mbognar/applets/beta.html) to see how the distribution would look like with different alpha and beta values.
-  - The simulator also allow users to specify the proportion of total TE copies to be intact TE insertion, using the parameter `-i` or `--intact`. Intact TE loci are kept in the same length as the original TE family sequence.
+  - The alpha and beta values are 0.5 and 0.7 by default to create an asymatric U-shape distribution, in which the probability of low sequence integrity (e.g. <10%) is higher than that of high integrity (e.g. >90%). You can use this [online tool](https://homepage.stat.uiowa.edu/~mbognar/applets/beta.html) to see how the distribution would look like with different alpha and beta values.
+  - Users can use the parameter `-a` or `--alpha` to specify alpha value, and use `-b` or `--beta` to specify beta value.
+  - The simulator also allow users to specify a fixed proportion of total TE copies to be intact TE insertion, using the parameter `-i` or `--intact`. Intact TE loci are kept in the same length as the original TE family sequence.
 
 - A new mode, **TE Composition Approximation mode** (`--mode 2` or `-M 2`), to allow users to create a simulated genome in which the TE composition is simulated in a way to approximate the real TE make-up in the original genome. 
-  - TEgenomeSimulator does this by masking and removing the original TEs using the TE library supplied via `--repeat2`, and then it simulates TE mutations based on the prior information obrained from RepeatMasker output file. 
+  - TEgenomeSimulator does this by masking and removing the original TEs using RepeatMasker with the TE library supplied via `--repeat2`, and then simulates TE mutations based on the prior information extracted from RepeatMasker output file. 
   - The rest of the steps, random and nested TE insertions are the same as the first two modes. 
-  - Note that the simulator uses the TE library specified by `--repeat` argument for TE mutation and simulation. Therefore it is crucial to specify the same TE library with `--repeat` and `--repeat2` for the purpose of this genome approximation simulation.
+  - Note that the simulator uses the TE library specified by `--repeat` argument for TE mutagenesis and insertions. Therefore it is crucial to specify the same TE library with `--repeat` and `--repeat2` for the purpose of this genome approximation simulation.
 
 ## Introduction
 TEgenomeSimulator was initially built on [Matias Rodriguez & Wojciech Makałowski. Software evaluation for de novo detection of transposons. 2022 Mobil DNA](https://mobilednajournal.biomedcentral.com/articles/10.1186/s13100-022-00266-2). TEgenomeSimulator adopted and modified scripts from the original [denovoTE-eval](https://github.com/IOB-Muenster/denovoTE-eval), and further developed with several new functionalities. The following table shows the major features that were kept, modified, or created in TEgenomeSimulator.
@@ -94,7 +97,7 @@ TEgenomeSimulator has three modes to be specified by user using the argument `-M
 - `-o` or `--outdir`: the path to the output directory
 
 
-### Output files from TEgenomeSimulator
+### Key output files from TEgenomeSimulator
 - **TElib_sim_list.table**: A tab-delimited table storing the parameters for simulating TE mutation. See example at ./test/output/ 
 - **TEgenomeSimulator_{$prefix}.yml**: A configuration file for simulation. See example at ./test/output/
 - **{$prefix}_genome_sequence_out.fasta**: The simulated genome fasta file with non-overlap random TE insertion (from **Step 1**).
@@ -133,8 +136,8 @@ After installation, you can take a look at the arguments of TEgenomeSimulator by
 The following shows the man-page of TEgenomeSimulator when typing `tegenomesimulator --help`.
 
 ```text
-usage: TEgenomeSimulator.py [-h] -M {0,1,2} [-k] [-S SIF_PATH] -p PREFIX -r REPEAT [-r2 REPEAT2] [-m MAXCP] [-n MINCP]
-                            [-c CHRIDX] [-g GENOME] [-a ALPHA] [-b BETA] [-i INTACT] [-s SEED] [-t THREADS] -o OUTDIR
+usage: tegenomesimulator [-h] -M {0,1,2} [-k] [-S SIF_PATH] -p PREFIX -r REPEAT [-r2 REPEAT2] [-m MAXCP] [-n MINCP] [--maxidn MAXIDN] [--minidn MINIDN] [--maxsd MAXSD] [--minsd MINSD] [-c CHRIDX]
+                         [-g GENOME] [-a ALPHA] [-b BETA] [-i INTACT] [-s SEED] [-t THREADS] -o OUTDIR
 
 main arguments of TEgenomeSimulator to simulate TE mutation and insertion into genome.
 
@@ -155,6 +158,10 @@ optional arguments:
                         Maximum copies of TE family (default is 10).
   -n MINCP, --mincp MINCP
                         Minimum copies of TE family (default is 1).
+  --maxidn MAXIDN       The upper bound of mean sequence identity to be sampled for each TE family (default is 95; i.e. 95 percent).
+  --minidn MINIDN       The lower bound of mean sequence identity to be sampled for each TE family (default is 80; i.e. 80 percent).
+  --maxsd MAXSD         The upper bound of standard deviation of mean identity to be sampled for each TE family (default is 20).
+  --minsd MINSD         The lower bound of standard deviation of mean identity to be sampled for each TE family (default is 1).
   -c CHRIDX, --chridx CHRIDX
                         Chromosome index file if mode 0 is selected.
   -g GENOME, --genome GENOME
