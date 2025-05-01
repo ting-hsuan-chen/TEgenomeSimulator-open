@@ -27,17 +27,17 @@ class Repeat:
         self.nest = nest
         self.integrities = integrity_list
 
-#Load params_chr from YAML file config_genome.yml in same directory (modified by THC)
+##Load params_chr from YAML file config_genome.yml in same directory (modified by THC)
 def parse_random_genome_yaml(config_file):
     params_chr = yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader)
     return params_chr
 
-#Load params_chr from YAML file config_custum_genome.yml in same directory (function created by THC)
+##Load params_chr from YAML file config_custum_genome.yml in same directory (function created by THC)
 def parse_custom_genome_yaml(config_file):
     params_chr = yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader)
     return params_chr
 
-#Load existing non-repeat genome sequences (function created by THC)
+##Load existing non-repeat genome sequences (function created by THC)
 def load_custom_genome(params_chr):
     chr_id = list(params_chr['chrs'].keys())
     chrs_dict = {}
@@ -46,7 +46,7 @@ def load_custom_genome(params_chr):
         chrs_dict[chrid] = fasta[chrid].seq
     return chrs_dict
 
-#Load collection of repeats and params
+##Load collection of repeats and params
 def load_repeats(params):
     repeats_dict = {}
     fasta = SeqIO.index(params['rep_fasta'], "fasta")
@@ -68,7 +68,7 @@ def load_repeats(params):
             repeats_dict[name] = repeat
     return repeats_dict
 
-#Load collection of repeats and params for chrs simulation for mode 0 and 1 (function created by THC)
+##Load collection of repeats and params for chrs simulation for mode 0 and 1 (function created by THC)
 def load_repeats_chr(params_chr):
     chr_id = list(params_chr['chrs'].keys())
     repeats_dict = {}
@@ -93,7 +93,7 @@ def load_repeats_chr(params_chr):
             repeats_dict[name] = repeat
     return repeats_dict
 
-#Load collection of repeats and params for chrs simulation for mode 2 (function created by THC)
+##Load collection of repeats and params for chrs simulation for mode 2 (function created by THC)
 def load_repeats_chr_m2(params_chr):
     chr_id = list(params_chr['chrs'].keys())
     repeats_dict = {}
@@ -118,24 +118,17 @@ def load_repeats_chr_m2(params_chr):
             repeats_dict[name] = repeat
     return repeats_dict
 
-###Load other variables###
-#Calculate length of sequence of all repeats 
-#sum_rep_length = sum([len(rep.sequence) * rep.num_rep for rep in repeats])
-#Calculate length of sequence that is going to be randomly generated
-#rand_seq_length = seq_length - sum_rep_length
-
+##Generate single synthetic sequence
 def generate_random_sequence(params):
     #Create DNA alphabet for random sequence
     alphabet = ["A", "T", "G", "C"]
     gc = float(params['gc_content'])/100
     weights = [(1-gc)/2, (1-gc)/2, gc/2, gc/2]
     #Generate random sequence that is going to separate the repeats
-    abase_sequence = "".join([random.choice(alphabet) for i in range(0,params['seq_length'])])
-    #base_sequence = random.choices(alphabet, weights, params['seq_length'])
     base_sequence = "".join(numpy.random.choice(alphabet, params['seq_length'], p=weights, replace=True))
     return base_sequence
 
-#Generate random sequence for each chromosome (function created by THC)
+##Generate random sequence for each chromosome (function created by THC)
 def generate_random_chr_sequence(params_chr):
     #Create DNA alphabet for random chr sequence
     chrs_dict = {} 
@@ -145,14 +138,7 @@ def generate_random_chr_sequence(params_chr):
         chrs_dict[chr_id] = chr_seq
     return chrs_dict
 
-#Randomly select positions to insert all the repeats
-#def assign_coord_repeats(params, repeats_dict):
-#    total_num_rep = sum([repeats_dict[rep].num_rep for rep in repeats_dict])
-#    random_repeats_coords = random.sample(range(params['seq_length']-1), total_num_rep)
-#    random_repeats_coords.sort()
-#    return random_repeats_coords
-
-#Randomly select chrs and positions to insert all the repeats (function created by THC)
+##Randomly select chrs and positions to insert all the repeats (function created by THC)
 def assign_chr_coord_repeats(params_chr, repeats_dict):
     #Total number of non-nested repeats 
     total_num_rep = 0
@@ -206,27 +192,7 @@ def shuffle_repeats(repeats_dict):
     random.shuffle(name_pos)
     return name_pos
 
-#Shuffle the order of TE families to be inserted for --mode 2
-# store the integrity list as the second column
-#def shuffle_repeats_m2(repeats_dict):
-#    allnames = []
-#    allintegrities = []
-#    for rep in repeats_dict:
-#        num_rep = int(repeats_dict[rep].num_rep - repeats_dict[rep].num_rep*(repeats_dict[rep].nest / 100.0))
-#        names = num_rep * [repeats_dict[rep].name]
-#        #n_frags = int(((num_rep * repeats_dict[rep].frag) / 100 ))
-#        #n_frags = num_rep
-#        integrity_lst = [repeats_dict[rep].integrities] * num_rep
-#        #sample_changes = random.sample(range(len(positions)), n_frags)
-#        #for f in sample_changes:
-#        #    positions[f] += 1
-#        allnames += names
-#        allintegrities += integrity_lst
-#    name_pos = list(zip(allnames, allintegrities))
-#    random.shuffle(name_pos)
-#    return name_pos
-
-#Get identity using a normal distribution (modified by THC)
+##Get identity using a normal distribution (modified by THC)
 def get_identity(mean, sd):
     #identity = int(numpy.random.normal(mean, sd, 1)) # int an array is deprecated in NumPy 1.25
     #to prevent the warning message, use the following instead
@@ -238,7 +204,7 @@ def get_identity(mean, sd):
         identity = int(identity[0])
     return identity
 
-#Generate vector of coords for base_changes and indels
+##Generate vector of coords for base_changes and indels
 def generate_mismatches(sequence, identity, indels):
     alphabet = ["T", "G", "C", "A"]
     seq_len = len(sequence)
@@ -257,30 +223,7 @@ def generate_mismatches(sequence, identity, indels):
     indel_changes_vec.sort()
     return base_changes_vec, indel_changes_vec
 
-#Generate vector of coords for base_changes and indels
-#Modified the function to ensure that num_indels does not exceed num_changes
-#def generate_mismatches(sequence, identity, indels):
-#    alphabet = ["T", "G", "C", "A"]
-#    seq_len = len(sequence)    
-#    # Calculate number of nucleotide changes (SNPs + indels)
-#    num_changes = seq_len - int(round((seq_len * identity / 100.0)))
-#    if num_changes <= 0:
-#        return [], []  # No changes needed
-#    # Generate a vector containing locations for SNPs
-#    pos_changes_vec = random.sample(range(seq_len), num_changes)
-#    # Calculate number of SNPs to be changed as indels
-#    num_indels = min(num_changes, int(round(num_changes * (indels / 100.0))))  # Ensure it's not larger than num_changes
-#    # If num_indels is 0, return only SNP changes
-#    if num_indels == 0:
-#        return sorted(pos_changes_vec), []
-#    # Generate a vector containing SNP locations to be changed to indels
-#    indel_changes_vec = random.sample(pos_changes_vec, num_indels)
-#    # Generate a vector containing SNP locations (removal of indel locations)
-#    base_changes_vec = sorted(set(pos_changes_vec) - set(indel_changes_vec))    
-#    return base_changes_vec, sorted(indel_changes_vec)
-
-
-#Create SNPs
+##reate SNPs
 def add_base_changes(repeat_seq, base_changes_vec):
     alphabet = ["T", "G", "C", "A"]
     repeat_seq_list = list(repeat_seq)
@@ -311,7 +254,7 @@ def add_indels(repeat_seq, indels_changes_vec):
     new_repeat_seq =  "".join(repeat_seq_list)
     return new_repeat_seq
 
-#Add TSD if required (modified by THC to allow customised TSD length range)
+##Add TSD if required (modified by THC to allow customised TSD length range)
 def create_TSD(tsd_min, tsd_max, identity, indels):
     alphabet = ["T", "G", "C", "A"]
     tsd_seq_5 = "".join([random.choice(alphabet) for i in range(random.choice(range(tsd_min, tsd_max+1)))])
@@ -321,79 +264,28 @@ def create_TSD(tsd_min, tsd_max, identity, indels):
     tsd_seq_3 = add_indels(tsd_seq_mismatches, tsd_indels_changes_vec)
     return tsd_seq_5, tsd_seq_3
 
-#Fragment TE sequence
-# def fragment(seq):
-#     frag_size = 100
-#     len_seq =len(seq)
-#     #Decide on the proportion of TE sequence to be maintained
-#     if len_seq < 500:
-#         frag_size = random.randint(70,99)
-#     else:
-#         frag_size = random.randint(40,99)
-#     #Calculate the length of the TE sequence to be removed
-#     cut_length = int(len_seq*((100 - frag_size)/100.0))
-#     return seq[cut_length:], frag_size, cut_length
-
-# def fragment(seq, alpha=0.7, beta=0.5):
-#     """Fragment TE sequence using a beta distribution."""
-#     len_seq = len(seq)
-# 
-#     # Sample element_size (as a proportion to full length) from a beta distribution and scale to 1-100 (tested as run2)
-#     #element_size = int(numpy.clip(numpy.random.beta(alpha, beta) * 99 + 1, 1, 100))
-#     
-#     # Multiply the Beta Sample to Widen Gaps (tested as run3)
-#     # Try raising the beta sample to a power (p > 1) to push more values toward the extremes
-#     raw_sample = numpy.random.beta(alpha, beta)
-#     adjusted_sample = raw_sample**2  # Raising to a power deepens the valley
-#     element_size = int(numpy.clip(adjusted_sample * 99 + 1, 1, 100))
-# 
-#     # Introduce a Scaling Factor for Extremes
-#     # Instead of applying a direct power, try to scale values closer to 0 and 1:
-#     #scale_factor = 1.5
-#     #element_size = int(numpy.clip((numpy.random.beta(alpha, beta) - 0.5) * 2 * scale_factor + 50, 1, 100))
-# 
-# 
-#     # Calculate the length of the TE sequence in bp to be removed
-#     cut_length = int(len_seq * ((100 - element_size) / 100.0))
-# 
-#     return seq[cut_length:], element_size, cut_length
-
-
-#def fragment(seq, base_alpha=0.5, base_beta=0.7, target_length=4000, power=1.5):
+##Fragmentation: beta distribution
 def fragment(seq, alpha=0.5, beta=0.7):
-    #"""Fragment TE sequence using a dynamically adjusted beta distribution with power adjustment."""
     """Fragment TE sequence using a beta distribution."""
     len_seq = len(seq)
-
-    # Dynamically adjust alpha and beta based on sequence length (tested as run4)
-    #alpha = base_alpha #* (len_seq / target_length)
-    #beta = base_beta #* (len_seq / target_length)
-
-    # Sample from beta and apply power transformation
+    # Sample from beta 
     raw_sample = numpy.random.beta(alpha, beta)
-    #adjusted_sample = raw_sample ** power  # Raising to power deepens the valley
-
     # Convert to element size
-    #element_size = int(numpy.clip(adjusted_sample * 99 + 1, 1, 100))
     element_size = int(numpy.clip(raw_sample * 99 + 1, 1, 100))
-
     # Calculate cut length
     cut_length = int(len_seq * ((100 - element_size) / 100.0))
-
     return seq[cut_length:], element_size, cut_length
 
-
+##Fragmentation for mode 2
 def fragment_m2(seq, integrity_lst):
     """Fragment TE sequence using prior info from repeatmasker output."""
     len_seq = len(seq)
     length_ratio = random.choice(integrity_lst)
     # Make sure length_ratio <= 1
     if length_ratio > 1:
-        length_ratio = 1
-    
+        length_ratio = 1    
     # Calculate the length of the TE sequence in bp to be removed
     cut_length = int(len_seq * (1 - length_ratio))
-
     return seq[cut_length:], length_ratio*100 , cut_length
 
 ##Generate new sequence including the repeats in the random one (modified by THC)
@@ -475,7 +367,6 @@ def generate_sequence(repeats_dict, rand_rep_pos, rand_seq, total_names_rep, alp
     seq += rand_seq[n:]
     #Return sequences and repeat data
     return seq, new_repeats_coord
-
 
 ##Generate new sequence including the repeats in the random chr sequences (function created by THC)
 def generate_genome_sequence(repeats_dict, rand_rep_pos, rand_chr_dict, shuffled_repeats, alpha, beta, mode):

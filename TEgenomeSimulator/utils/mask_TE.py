@@ -59,7 +59,6 @@ def run_repeatmasker(threads, namelib, namefa, sif_path, outdir):
             # Run the command and capture the output
         with open(f"{outdir}/TEgenomeSimulator.log", "a") as log_file:
             subprocess.run(cmd, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        # result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         
         print(f"\nRunning RepeatMasker successfully. Output logged to {outdir}/TEgenomeSimulator.log")
     
@@ -157,17 +156,6 @@ def main():
     
     # Remove TE nucleotides
     masked_file = f"{out_dir}/{base_name}.masked.reformatted"
-    
-    #print(f"\nStarting to remove TE nucleotides.")
-    #output_file = f"{os.path.basename(masked_file)}.nonTE"
-#
-    #with open(masked_file, "r") as infile, open(output_file, "w") as outfile:
-    #    for line in infile:
-    #        outfile.write(line.replace("X", ""))
-#
-    #print(f"\nTE nucleotides were removed successfully.")
-
-
     remove_te(masked_file)
 
 if __name__ == "__main__":

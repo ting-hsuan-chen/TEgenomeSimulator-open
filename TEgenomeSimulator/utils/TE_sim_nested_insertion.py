@@ -10,7 +10,7 @@ from pathlib import Path
 from TE_sim_random_insertion import parse_random_genome_yaml, parse_custom_genome_yaml, load_repeats_chr, load_repeats_chr_m2, generate_mismatches, add_indels, add_base_changes
 from TE_sim_random_insertion import get_identity, create_TSD, fragment, fragment_m2
 
-#Turn gff table into a big list where each item represent a row in gff table
+##Turn gff table into a big list where each item represent a row in gff table
 def load_gff(gff_file):
     gff = []
     with open(gff_file) as gff_fh:
@@ -19,7 +19,7 @@ def load_gff(gff_file):
             gff.append(e)
     return gff
 
-#Modify the coordinates of TE loci locating downstream of the nested insertion for genome with multiple chr (function created by THC)
+##Modify the coordinates of TE loci locating downstream of the nested insertion for genome with multiple chr (function created by THC)
 def modify_genome_coords(offset, index, new_gff, chr_id):
     new_gff_aux = []
     for i in range(index, len(new_gff)):
@@ -30,7 +30,7 @@ def modify_genome_coords(offset, index, new_gff, chr_id):
             new_gff[i][4] = str(end)
     return new_gff
 
-# Excluding Alu and SINE for nested insertion
+##Excluding Alu and SINE for nested insertion
 def filter_nonest(gff):
     c = 0
     vec_cand = []
@@ -42,7 +42,7 @@ def filter_nonest(gff):
         c+=1
     return vec_cand
 
-#Turn the inserted repeat fasta file into a dictionary with te_id as key (function created by THC)
+##Turn the inserted repeat fasta file into a dictionary with te_id as key (function created by THC)
 def load_isrt_te_fa(inserted_te_fasta_file):
     isrt_te_dict=SeqIO.to_dict(SeqIO.parse(inserted_te_fasta_file,"fasta"))    
     keys_copy = list(isrt_te_dict.keys())
@@ -53,7 +53,7 @@ def load_isrt_te_fa(inserted_te_fasta_file):
     return isrt_te_dict
 
 
-#Generate genome with nested insertions (function modified by THC)
+##Generate genome with nested insertions (function modified by THC)
 def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode):
     rep_count = []
     new_seq = ""
@@ -109,8 +109,6 @@ def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode)
             tsd_5_len = len(tsd_seq_5)
             tsd_3_len = len(tsd_seq_3)
         
-        #Fragment weighted (applying 100% chance of fragmentation)
-        #isFrag = random.choice([1,1,0])
         new_nest_seq_tsd_frag = new_nest_seq_tsd
         
         #if isFrag:
@@ -118,10 +116,8 @@ def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode)
             new_nest_seq_tsd_frag, frag, cut = fragment(new_nest_seq_tsd, alpha, beta)
         if mode == 2:
             new_nest_seq_tsd_frag, frag, cut = fragment_m2(new_nest_seq_tsd, repeats[k].integrities)
-            #new_nest_seq_tsd_frag, frag, cut = fragment(new_nest_seq_tsd, alpha, beta)
             
         nest_len = len(new_nest_seq_tsd_frag)
-        #nest_name = repeats[k].name
     
         #Calculate the coordinates of the host TEs and nested TEs after insertion
         new_end_1 = start + ins_pos
@@ -196,11 +192,10 @@ def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode)
     return genome, isrt_te_dict, nest_te_dict, new_gff
     
 
-#Print final sequence to files (function created by THC)
+##Print final sequence to files (function created by THC)
 def print_genome_nest_data(genome, isrt_te_dict, nest_te_dict, new_gff, params, out_dir):
     #Setup output directory   
     file_prefix = str(params['prefix'])
-    #Path(out_dir, "TEgenomeSimulator_" + file_prefix + "_result").mkdir(parents=True, exist_ok=True)
     os.chdir(Path(out_dir, "TEgenomeSimulator_" + file_prefix + "_result"))
     
     #Specifiy output files
@@ -293,7 +288,6 @@ def main():
         repeats_dict = load_repeats_chr(params_chr)
     elif args.mode == 2:
         repeats_dict = load_repeats_chr_m2(params_chr)
-        #repeats_dict = load_repeats_chr(params_chr)
 
     gff = load_gff(gff_file)
     
