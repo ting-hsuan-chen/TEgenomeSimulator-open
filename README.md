@@ -1,7 +1,7 @@
 # TEgenomeSimulator
 A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.
 
-This tool is released under the GPL license to promote advancements in TE research. The first version of TEgenomeSimulator (v0.1.0) was developed by [The New Zealand Institute for Plant and Food Research Ltd](https://www.plantandfood.com/en-nz/). More details about contributors, leadership and funding can be found in [Credits, Funding and Acknowledgement](https://github.com/Plant-Food-Research-Open/TEgenomeSimulator?tab=readme-ov-file#credits-funding-and-acknowledgement).
+This tool is released under the GPL license to promote advancements in TE research. TEgenomeSimulator was developed by [The New Zealand Institute for Plant and Food Research Ltd](https://www.plantandfood.com/en-nz/). More details about contributors, leadership and funding can be found in [Credits, Funding and Acknowledgement](https://github.com/Plant-Food-Research-Open/TEgenomeSimulator?tab=readme-ov-file#credits-funding-and-acknowledgement).
 
 You are welcome to raise issues for inquiries regarding TEgenomeSimulator or contribute to its development and improvement. For more details, please refer to [Contributing Guideline](./.github/contributing_guide.md).
 
