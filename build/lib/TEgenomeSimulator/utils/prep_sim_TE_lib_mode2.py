@@ -8,7 +8,6 @@ from Bio import SeqIO
 # Read args
 prefix = sys.argv[1]
 rm_outsum = sys.argv[2]
-#intact = sys.argv[3]
 seed = sys.argv[3]
 out_dir = sys.argv[4]
 
@@ -31,13 +30,7 @@ te_sum = pd.read_table(rm_outsum, sep='\t')
 # TE superfamily is the colmn 'superfamily'
 
 # TE subclass
-te_sum['subclass'] = te_sum['superfamily'].replace("/.*", "", regex=True)  
-
-# allow a factor to adjust copynumber 
-# count is the column 'copynumber'
-#factor = 0.7
-#te_sum['copynumber'] = (te_sum['copynumber']) * factor
-#te_sum['copynumber'] = te_sum['copynumber'].astype(int)   
+te_sum['subclass'] = te_sum['superfamily'].replace("/.*", "", regex=True)   
 
 # identity
 te_sum['idn'] = round(te_sum['mean_identity'] * 100, 0)
@@ -95,9 +88,6 @@ te_sum['tsd'] = pd.DataFrame({'tsd': tsd})
 # length is the column 'full_length_bp'
 
 # fragmented TE loci (as a proportion to total TE loci of the family)
-#te_sum['new_frag'] = (te_sum['fragment_ratio'] + 1) / 2
-#te_sum['frag'] = round(te_sum['new_frag'] * 100, 0)
-#te_sum['frag'] = te_sum['frag'].astype(int)
 te_sum['frag'] = te_sum['fragment_ratio'].astype(float)
 te_sum['frag'] = te_sum['frag'] * 100
 

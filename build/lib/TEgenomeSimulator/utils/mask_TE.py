@@ -31,7 +31,7 @@ def setup_repeatmasker_input(genome, repeat):
 
     return namefa, namelib
 
-def run_repeatmasker(threads, namelib, namefa, sif_path, outdir):
+def run_repeatmasker(threads, namelib, namefa, outdir):
     """
     Run RepeatMasker with the given parameters.
 
@@ -39,7 +39,6 @@ def run_repeatmasker(threads, namelib, namefa, sif_path, outdir):
         threads (int): Number of threads to use.
         namelib (str): Path to the RepeatMasker library file.
         namefa (str): Path to the input FASTA file.
-        sif_path (str): Path to the dfam-tetools.sif container.
 
     Returns:
         tuple: (stdout, stderr, returncode)
@@ -47,7 +46,7 @@ def run_repeatmasker(threads, namelib, namefa, sif_path, outdir):
     try: 
         # The command to run repeatmasker
         cmd = [
-            "singularity", "exec", sif_path, "RepeatMasker",
+            "RepeatMasker",
             "-pa", str(threads),
             "-a", "-x", "-q", "-no_is", "-norna", "-nolow",
             "-div", "40",
@@ -59,7 +58,6 @@ def run_repeatmasker(threads, namelib, namefa, sif_path, outdir):
             # Run the command and capture the output
         with open(f"{outdir}/TEgenomeSimulator.log", "a") as log_file:
             subprocess.run(cmd, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        # result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         
         print(f"\nRunning RepeatMasker successfully. Output logged to {outdir}/TEgenomeSimulator.log")
     
@@ -126,8 +124,6 @@ def main():
                     help="path to the repeat fasta file")
     parser.add_argument("-g", "--genome", type=str,
                     help="path to genome fasta file")
-    parser.add_argument("-s", "--sif_path", type=str,
-                    help="path to dfam-tetools.sif")
     parser.add_argument("-o", "--outdir", type=str,
                     help="output directory")
     
@@ -136,7 +132,6 @@ def main():
     threads = args.threads
     te_lib = args.repeat
     genome_fa = args.genome
-    sif_path = args.sif_path
     out = args.outdir
     
     # Change directory
@@ -148,7 +143,7 @@ def main():
     namefa, namelib = setup_repeatmasker_input(genome_fa, te_lib)
 
     # Run RepeatMasker
-    run_repeatmasker(threads, namelib, namefa, sif_path, out)
+    run_repeatmasker(threads, namelib, namefa, out)
 
     # Convert multi-line masked fasta file to single-line fasta
     base_name = os.path.basename(genome_fa)
@@ -157,17 +152,6 @@ def main():
     
     # Remove TE nucleotides
     masked_file = f"{out_dir}/{base_name}.masked.reformatted"
-    
-    #print(f"\nStarting to remove TE nucleotides.")
-    #output_file = f"{os.path.basename(masked_file)}.nonTE"
-#
-    #with open(masked_file, "r") as infile, open(output_file, "w") as outfile:
-    #    for line in infile:
-    #        outfile.write(line.replace("X", ""))
-#
-    #print(f"\nTE nucleotides were removed successfully.")
-
-
     remove_te(masked_file)
 
 if __name__ == "__main__":

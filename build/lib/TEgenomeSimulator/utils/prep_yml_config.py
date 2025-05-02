@@ -44,7 +44,6 @@ print(f"Output directory set as {args.outdir}")
 if chr_index:
     # Randome Genome Mode using chromosome index table
     df = pd.read_csv(str(chr_index), sep=',', names=['chr_id', 'length', 'gc'])
-    #rand_genome_lib_w_len = df.set_index('chr_id')[['length', 'gc']].to_dict()
     rand_genome_lib_w_len = df.set_index('chr_id').to_dict('index')
 
 elif genome_fa:
@@ -62,8 +61,7 @@ elif genome_fa:
 # Create the config file
 final_out = outdir + '/TEgenomeSimulator_' + prefix + '_result'
 yml_name = 'TEgenomeSimulator_' + prefix + '.yml'
-#os.chdir(Path(outdir, "TEgenomeSimulator_" + file_prefix + "_result"))
-#table_out = open(Path(final_out, "TElib_sim_list.table"), "w")
+
 config_out = open(Path(final_out, yml_name), 'w')
 if chr_index:
     # Generate config file for Randome Genome Mode
