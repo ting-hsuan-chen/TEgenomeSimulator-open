@@ -36,7 +36,7 @@ def run_TE_stitch(prefix, te_lib, outdir):
 
 
 # Function to call mask_TE.py to mask and remove TE nucleodites
-def run_mask_TE(prefix, threads, stitched_telib, unmasked_genome, sif_path, outdir):
+def run_mask_TE(prefix, threads, stitched_telib, unmasked_genome, outdir):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/mask_TE.py')
     final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
@@ -46,7 +46,6 @@ def run_mask_TE(prefix, threads, stitched_telib, unmasked_genome, sif_path, outd
             '-t', threads,
             '-r', stitched_telib,
             '-g', unmasked_genome,
-            '-s', sif_path,
             '-o', final_out
         ]
         
@@ -111,7 +110,7 @@ def to_mask(args, final_out):
 
     # Run the required preparation steps
     run_TE_stitch(args.prefix, args.repeat2, args.outdir)
-    run_mask_TE(args.prefix, str(args.threads), stitched_telib, unmasked_genome, args.sif_path, args.outdir)
+    run_mask_TE(args.prefix, str(args.threads), stitched_telib, unmasked_genome, args.outdir)
     run_fix_empty_seq(args.prefix, non_te_genome, args.outdir)
 
     # Return the path to the final processed genome file
@@ -307,7 +306,6 @@ def main():
     # Define arguments
     parser.add_argument('-M', '--mode', type=mode_check, choices=[0, 1, 2], help="Mode for genome simulation (choose from 0, 1 or 2).", required=True)
     parser.add_argument('-k', '--to_mask', action='store_true', help="Mask and remove TE from provided genome when enabled")
-    parser.add_argument('-S', '--sif_path', type=str, help="Path to dfam-tetools.sif for running RepeatMasker (required when using --to_mask).")
     parser.add_argument('-p', '--prefix', type=str, help="Prefix for output files.", required=True)
     parser.add_argument('-r', '--repeat', type=str, help="TE family fasta file for random insertion simulation.", required=True)
     parser.add_argument('-r2', '--repeat2', type=str, help="TE family fasta file for masking genome (required when using --to_mask).")
@@ -344,16 +342,10 @@ def main():
         if args.to_mask and not args.repeat2:
             print("Error: When --mode 1 is selected and --to_mask is specified, --repeat2 must also be provided.")
             sys.exit(1)
-        if args.to_mask and not args.sif_path:
-            print("Error: When --mode 1 is selected and --to_mask is specified, --sif_path must also be provided.")
-            sys.exit(1)
     elif args.mode == 2:
         # Mode 2 requires --genome and --repeat2 to be specified
         if not args.genome or not args.repeat2:
             print("Error: When --mode 2 is selected, --genome and --repeat2 must also be specified.")
-            sys.exit(1)
-        if not args.sif_path:
-            print("Error: When --mode 2 is selected, --sif_path must also be provided.")
             sys.exit(1)
 
 
