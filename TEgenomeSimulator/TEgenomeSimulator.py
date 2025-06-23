@@ -383,10 +383,13 @@ def main():
         print(f"TE copy number, mean sequence identity, sd, and max chance of intact insertion evaluated from repeatmasker output.")
 
     print(f"Seed: {args.seed}")
-    print(f"Output Directory: {args.outdir}")
     
-    # Specify output dir for each project
-    final_out = args.outdir + "/TEgenomeSimulator_" + args.prefix + "_result"
+    # Convert user-provided output path to absolute path
+    outdir = Path(args.outdir).resolve()
+    print(f"Output Directory: {outdir}")
+    
+    # Specify final output dir for each project
+    final_out = outdir / f"TEgenomeSimulator_{args.prefix}_result"
     Path(final_out).mkdir(parents=True, exist_ok=True)
 
     # Call the prep_sim_TE_lib.py script to generate the TE library table
