@@ -4,6 +4,7 @@ import argparse
 import subprocess
 from pathlib import Path
 from Bio import SeqIO
+from datetime import datetime
 
 # Function to check if the mode is 1 (user-provided genome) or 0 (random genome)
 def mode_check(value):
@@ -327,6 +328,23 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
+    # Convert user-provided output path to absolute path
+    outdir = Path(args.outdir).resolve()
+    
+    # Specify final output dir for each project
+    final_out = outdir / f"TEgenomeSimulator_{args.prefix}_result"
+    Path(final_out).mkdir(parents=True, exist_ok=True)
+    
+    # Set up path to log file
+    log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+
+    # Create and initialize the log file early
+    with open(log_path, "w") as log_file:
+        log_file.write(f"[{datetime.now()}] TEgenomeSimulator started.\n")
+        log_file.write(f"[{datetime.now()}] Arguments: {vars(args)}\n")
+
+    print(f"Output Directory: {outdir}")
+
     # Mode-based validation
     if args.mode == 0:
         # Mode 0 requires --chridx to be specified
@@ -383,14 +401,6 @@ def main():
         print(f"TE copy number, mean sequence identity, sd, and max chance of intact insertion evaluated from repeatmasker output.")
 
     print(f"Seed: {args.seed}")
-    
-    # Convert user-provided output path to absolute path
-    outdir = Path(args.outdir).resolve()
-    print(f"Output Directory: {outdir}")
-    
-    # Specify final output dir for each project
-    final_out = outdir / f"TEgenomeSimulator_{args.prefix}_result"
-    Path(final_out).mkdir(parents=True, exist_ok=True)
 
     # Call the prep_sim_TE_lib.py script to generate the TE library table
     if args.mode == 0 or args.mode == 1: 
