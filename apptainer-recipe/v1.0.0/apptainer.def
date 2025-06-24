@@ -2,7 +2,7 @@ Bootstrap: docker
 From: ubuntu:22.04
 
 %labels
-    Maintainer: ting-hsuan.chen@plandandfood.co.nz
+    Maintainer: ting-hsuan.chen@plantandfood.co.nz
     Version: 1.0.0
     Description: TEgenomeSimulator, a tool to simulate TE mutation and insertion into a random or user-provided genome.
 
