@@ -4,6 +4,58 @@ import argparse
 import subprocess
 from pathlib import Path
 from Bio import SeqIO
+from datetime import datetime
+import subprocess
+
+# Use Tee to duplicate stdout to log file
+class TeeLogger:
+    def __init__(self, log_file_path):
+        self.terminal = sys.stdout
+        self.log = open(log_file_path, "a")  # use "a" to append, assuming log already initialized
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+# Use Tee to duplicate stderr to log file
+class TeeErrorLogger:
+    def __init__(self, log_file_path):
+        self.terminal_err = sys.__stderr__
+        self.log = open(log_file_path, "a")
+
+    def write(self, message):
+        for line in message.rstrip().splitlines():
+            timestamped_line = f"[{datetime.now()}] {line}\n"
+            self.terminal_err.write(timestamped_line)
+            self.log.write(timestamped_line)
+
+    def flush(self):
+        self.terminal_err.flush()
+        self.log.flush()
+
+# Print subprocess output to both console and log
+def run_subprocess_and_tee_output(command, log_path):
+    """Run a subprocess and tee its output to both console and log file."""
+    with open(log_path, "a") as log_file:
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+
+        for line in process.stdout:
+            print(line, end='')          # Goes to TeeLogger, so both log and console
+            log_file.flush()             # Flush to write immediately
+
+        process.wait()
+
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(process.returncode, command)
 
 # Function to check if the mode is 1 (user-provided genome) or 0 (random genome)
 def mode_check(value):
@@ -25,13 +77,13 @@ def run_TE_stitch(prefix, te_lib, outdir):
         ]
         
         # Run the command and capture the output
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(te_stitch_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nStitching TE successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(te_stitch_command, log_path)
+
+        print(f"\nStitching TE successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running TE_stitch.py: {e}")
+        print(f"\nError occurred while running TE_stitch.py: {e}", flush=True)
         sys.exit(1)
 
 
@@ -50,13 +102,13 @@ def run_mask_TE(prefix, threads, stitched_telib, unmasked_genome, outdir):
         ]
         
         # Run the command and capture the output
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(mask_te_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nMasking and removing TE successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(mask_te_command, log_path)
+
+        print(f"\nMasking and removing TE successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running mask_TE.py: {e}")
+        print(f"\nError occurred while running mask_TE.py: {e}", flush=True)
         sys.exit(1)
 
 # Function to call fix_empty_seq.py to mask and remove TE nucleodites
@@ -71,13 +123,13 @@ def run_fix_empty_seq(prefix, non_te_genome, outdir):
         ]
         
         # Run the command and capture the output
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(fix_empty_seq_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nChecking empty sequences successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(fix_empty_seq_command, log_path)
+
+        print(f"\nChecking empty sequences successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running fix_empty_seq.py: {e}")
+        print(f"\nError occurred while running fix_empty_seq.py: {e}", flush=True)
         sys.exit(1)
 
 
@@ -132,13 +184,13 @@ def run_summarise_rm_out(prefix, rmasker_tbl, libindex, rmasker_out, outdir):
         ]
         
         # Run the command and capture the output
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(summarise_rm_out_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nSummarising TE composition successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(summarise_rm_out_command, log_path)
+
+        print(f"\nSummarising TE composition successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running summarise_rm_out.py: {e}")
+        print(f"\nError occurred while running summarise_rm_out.py: {e}", flush=True)
         sys.exit(1)
 
 
@@ -164,13 +216,13 @@ def run_prep_sim_TE_lib(prefix, repeat, maxcp, mincp, maxidn, minidn, maxsd, min
         ]
         
         # Run the command and capture the output
-        with open(f"{final_out}/TEgenomeSimulator.log", "w") as log_file:
-            subprocess.run(prep_telib_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nTE library table generated successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(prep_telib_command, log_path)
+
+        print(f"\nTE library table generated successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running prep_sim_TE_lib.py: {e}")
+        print(f"\nError occurred while running prep_sim_TE_lib.py: {e}", flush=True)
         sys.exit(1)
 
 def prep_sim_TE_lib_mode2(prefix, rmout_summary, seed, outdir):
@@ -187,13 +239,13 @@ def prep_sim_TE_lib_mode2(prefix, rmout_summary, seed, outdir):
         ]
         
         # Run the command and capture the output
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(prep_telib_m2_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nTE library table for mode 2 generated successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(prep_telib_m2_command, log_path)
+
+        print(f"\nTE library table for mode 2 generated successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running prep_sim_TE_lib_mode2.py: {e}")
+        print(f"\nError occurred while running prep_sim_TE_lib_mode2.py: {e}", flush=True)
         sys.exit(1)
 
 # Function to call the prep_yml_config.py script for Random Genome Mode
@@ -213,13 +265,13 @@ def run_prep_config_random(prefix, chridx, repeat, te_table, seed, outdir):
         ]
 
         # Run the command and append the output to the log file
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(prep_yml_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nConfig file generated successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(prep_yml_command, log_path)
+
+        print(f"\nConfig file generated successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
         
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running prep_yml_config.py: {e}")
+        print(f"\nError occurred while running prep_yml_config.py: {e}", flush=True)
         sys.exit(1)
 
 # Function to call the prep_yml_config.py script for Custom Genome Mode
@@ -239,13 +291,13 @@ def run_prep_config_custom(prefix, genome, repeat, te_table, seed, outdir):
         ]
             
         # Run the command and append the output to the log file
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(prep_yml_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-            
-            print(f"\nConfig file generated successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(prep_yml_command, log_path)    
+        
+        print(f"\nConfig file generated successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
         
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running prep_yml_config.py: {e}")
+        print(f"\nError occurred while running prep_yml_config.py: {e}", flush=True)
         sys.exit(1)
 
 # Function to call TE_sim_random_insertion.py for non-overlape random TE insertion
@@ -264,13 +316,13 @@ def run_TE_sim_random_insertion(mode, prefix, alpha, beta, outdir):
         ]
 
         # Run the command and capture the output
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(prep_sim_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nGenome with non-overlap random TE insertions was generated successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(prep_sim_command, log_path)
+
+        print(f"\nGenome with non-overlap random TE insertions was generated successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running prep_sim_TE_lib.py: {e}")
+        print(f"\nError occurred while running prep_sim_TE_lib.py: {e}", flush=True)
         sys.exit(1)
 
 # Function to call for nested TE insertion
@@ -289,13 +341,13 @@ def run_TE_sim_nested_insertion(mode, prefix, alpha, beta, outdir):
         ]
 
         # Run the command and capture the output
-        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
-            subprocess.run(prep_nest_command, check=True, stdout=log_file, stderr=subprocess.STDOUT)
-        
-        print(f"\nGenome with non-overlap random and nested TE insertions was generated successfully. Output logged to {final_out}/TEgenomeSimulator.log")
+        log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+        run_subprocess_and_tee_output(prep_nest_command, log_path)
+
+        print(f"\nGenome with non-overlap random and nested TE insertions was generated successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running prep_sim_TE_lib.py: {e}")
+        print(f"\nError occurred while running prep_sim_TE_lib.py: {e}", flush=True)
         sys.exit(1)
 
 
@@ -327,67 +379,83 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
+    # Convert user-provided output path to absolute path
+    outdir = Path(args.outdir).resolve()
+    
+    # Specify final output dir for each project
+    final_out = outdir / f"TEgenomeSimulator_{args.prefix}_result"
+    Path(final_out).mkdir(parents=True, exist_ok=True)
+    
+    # Set up path to log file
+    log_path = os.path.join(final_out, "TEgenomeSimulator.log")
+
+    # Create and initialize the log file early
+    with open(log_path, "w") as log_file:
+        print(f"[{datetime.now()}] TEgenomeSimulator started.")
+        print(f"[{datetime.now()}] Arguments: {vars(args)}")
+
+    # Redirect stdout and stderr to TeeLogger after initialization
+    sys.stdout = TeeLogger(log_path)
+    sys.stderr = TeeErrorLogger(log_path)
+
+    print(f"Output Directory: {outdir}", flush=True)
+
     # Mode-based validation
     if args.mode == 0:
         # Mode 0 requires --chridx to be specified
         if not args.chridx:
-            print("Error: When --mode 0 is selected, --chridx must also be specified.")
+            print("Error: When --mode 0 is selected, --chridx must also be specified.", flush=True)
             sys.exit(1)
     elif args.mode == 1:
         # Mode 1 requires --genome to be specified
         if not args.genome:
-            print("Error: When --mode 1 is selected, --genome must also be specified.")
+            print("Error: When --mode 1 is selected, --genome must also be specified.", flush=True)
             sys.exit(1)
         # If --to_mask is specified, then --repeat2 must also be provided
         if args.to_mask and not args.repeat2:
-            print("Error: When --mode 1 is selected and --to_mask is specified, --repeat2 must also be provided.")
+            print("Error: When --mode 1 is selected and --to_mask is specified, --repeat2 must also be provided.", flush=True)
             sys.exit(1)
     elif args.mode == 2:
         # Mode 2 requires --genome and --repeat2 to be specified
         if not args.genome or not args.repeat2:
-            print("Error: When --mode 2 is selected, --genome and --repeat2 must also be specified.")
+            print("Error: When --mode 2 is selected, --genome and --repeat2 must also be specified.", flush=True)
             sys.exit(1)
 
 
     # Output parsed arguments (for demonstration)
-    print(f"Mode: {args.mode}")
+    print(f"Mode: {args.mode}", flush=True)
     if args.mode == 0:
-        print(f"Running Random Synthesized mode.")
+        print(f"Running Random Synthesized mode.", flush=True)
     elif args.mode == 1:
-        print(f"Running Custom Genome mode.")
+        print(f"Running Custom Genome mode.", flush=True)
         if args.to_mask:
-            print(f"To mask genome? {args.to_mask} enabled. Yes.")
+            print(f"To mask genome? {args.to_mask} enabled. Yes.", flush=True)
         else:
             print(f"To mask genome? No.")
     elif args.mode == 2:
-        print(f"Running Genome Approximation mode. TEgenomeSimulator will mask the genome under this mode.")
+        print(f"Running Genome Approximation mode. TEgenomeSimulator will mask the genome under this mode.", flush=True)
         
-    print(f"Prefix: {args.prefix}")
-    print(f"Repeat: {args.repeat}")
+    print(f"Prefix: {args.prefix}", flush=True)
+    print(f"Repeat: {args.repeat}", flush=True)
     if args.mode == 1 or args.mode == 2:
-        print(f"Repeat2: {args.repeat2}")
-    print(f"Chromosome Index: {args.chridx}")
-    print(f"Genome File: {args.genome}")
-    print(f"Alpha: {args.alpha}")
-    print(f"Beta: {args.beta}")
+        print(f"Repeat2: {args.repeat2}", flush=True)
+    print(f"Chromosome Index: {args.chridx}", flush=True)
+    print(f"Genome File: {args.genome}", flush=True)
+    print(f"Alpha: {args.alpha}", flush=True)
+    print(f"Beta: {args.beta}", flush=True)
 
     if args.mode == 0 or args.mode == 1:
-        print(f"Max Copies: {args.maxcp}")
-        print(f"Min Copies: {args.mincp}")        
-        print(f"Upper bound of mean identity: {args.maxidn}")
-        print(f"Lower bound of mean identity: {args.minidn}")
-        print(f"Upper bound of sd of mean identity: {args.maxsd}")
-        print(f"Lower bound of sd of mean ideneity: {args.minsd}")
-        print(f"Max chance of intact insertion: {args.intact}")
+        print(f"Max Copies: {args.maxcp}", flush=True)
+        print(f"Min Copies: {args.mincp}", flush=True)        
+        print(f"Upper bound of mean identity: {args.maxidn}", flush=True)
+        print(f"Lower bound of mean identity: {args.minidn}", flush=True)
+        print(f"Upper bound of sd of mean identity: {args.maxsd}", flush=True)
+        print(f"Lower bound of sd of mean ideneity: {args.minsd}", flush=True)
+        print(f"Max chance of intact insertion: {args.intact}", flush=True)
     else:
-        print(f"TE copy number, mean sequence identity, sd, and max chance of intact insertion evaluated from repeatmasker output.")
+        print(f"TE copy number, mean sequence identity, sd, and max chance of intact insertion evaluated from repeatmasker output.", flush=True)
 
-    print(f"Seed: {args.seed}")
-    print(f"Output Directory: {args.outdir}")
-    
-    # Specify output dir for each project
-    final_out = args.outdir + "/TEgenomeSimulator_" + args.prefix + "_result"
-    Path(final_out).mkdir(parents=True, exist_ok=True)
+    print(f"Seed: {args.seed}", flush=True)
 
     # Call the prep_sim_TE_lib.py script to generate the TE library table
     if args.mode == 0 or args.mode == 1: 
@@ -396,25 +464,25 @@ def main():
     # Call the prep_yml_config.py script to generate the config file using the TE library table generated from previous step or from the repeatmasker summary file
     te_table = os.path.join(final_out, "TElib_sim_list.table")
     if args.mode == 0:
-        print("mode=0, running prep_yml_config.py for Random Genome Mode.")
+        print("mode=0, running prep_yml_config.py for Random Genome Mode.", flush=True)
         run_prep_config_random(args.prefix, args.chridx, args.repeat, te_table, args.seed, args.outdir)
 
     elif args.mode == 1:
         if not args.to_mask: 
             print("mode=1, and --to_mask not specified, assumming user-provided genome is TE-depleted.", 
-                  "Running prep_yml_config.py for Custom Genome Mode.") 
+                  "Running prep_yml_config.py for Custom Genome Mode.", flush=True) 
             run_prep_config_custom(args.prefix, args.genome, args.repeat, te_table, args.seed, args.outdir)
         else: 
             # when --to_mask is enabled
             print("mode=1, and --to_mask is specified, assumming user-provided genome is not TE-depleted.", 
-                  "Running mask_TE.py before prep_yml_config.py for Custom Genome Mode.")            
+                  "Running mask_TE.py before prep_yml_config.py for Custom Genome Mode.", flush=True)            
             run_TE_stitch(args.prefix, args.repeat2, args.outdir)
             fixed_non_te_genome = to_mask(args, final_out)
             run_prep_config_custom(args.prefix, fixed_non_te_genome, args.repeat, te_table, args.seed, args.outdir)
 
     elif args.mode == 2:
         print("mode=2, summarising TE composition and masking TE in user-provided genome.", 
-              "Running mask_TE.py and summarise_rm_out.py before prep_yml_config.py for Custom Genome Mode.")
+              "Running mask_TE.py and summarise_rm_out.py before prep_yml_config.py for Custom Genome Mode.", flush=True)
         # --to_mask is enabled under this mode
         fixed_non_te_genome = to_mask(args, final_out)
         # Specify the required input files for run_summarise_rm_out()

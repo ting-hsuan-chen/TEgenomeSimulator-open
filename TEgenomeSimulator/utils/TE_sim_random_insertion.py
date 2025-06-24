@@ -465,16 +465,16 @@ def main():
     beta = args.beta
     out_dir = args.outdir
     
-    print("\n")
-    print("##############################################################")
-    print("### Mutate TE sequence and perform non-overlap TE insertion###")
-    print("##############################################################")
-    print(f"Using mode {mode} (0 for random genome; 1 for custome genome)")
+    print("\n", flush=True)
+    print("##############################################################", flush=True)
+    print("### Mutate TE sequence and perform non-overlap TE insertion###", flush=True)
+    print("##############################################################", flush=True)
+    print(f"Using mode {mode} (0 for random genome; 1 for custome genome)", flush=True)
 
     # Config file
     final_out = out_dir + '/TEgenomeSimulator_' + prefix + '_result'
     yml_file = "TEgenomeSimulator_" + str(prefix) + ".yml"
-    print(f"Using config file {yml_file}")
+    print(f"Using config file {yml_file}", flush=True)
 
     # Mode-dependent config file loading
     if args.mode == 0:
