@@ -105,7 +105,7 @@ for te_id, parts in te_dict.items():
 # Write the modified sequences to the output file
 SeqIO.write(new_records, Path(final_out, output_fasta), "fasta")
 
-print(f"Stitched FASTA saved as {output_fasta}")
+print(f"Stitched FASTA saved as {output_fasta}", flush=True)
 
 # Index stitched TE library
 input_file = Path(final_out, output_fasta)

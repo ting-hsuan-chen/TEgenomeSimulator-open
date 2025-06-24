@@ -59,10 +59,10 @@ def run_repeatmasker(threads, namelib, namefa, outdir):
         with open(f"{outdir}/TEgenomeSimulator.log", "a") as log_file:
             subprocess.run(cmd, check=True, stdout=log_file, stderr=subprocess.STDOUT)
         
-        print(f"\nRunning RepeatMasker successfully. Output logged to {outdir}/TEgenomeSimulator.log")
+        print(f"\nRunning RepeatMasker successfully. Output logged to {outdir}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
-        print(f"\nError occurred while running fix_empty_seq.py: {e}")
+        print(f"\nError occurred while running fix_empty_seq.py: {e}", flush=True)
         sys.exit(1)
 
 
@@ -82,7 +82,7 @@ def convert_fasta_to_single_line(input_fasta):
         for record in SeqIO.parse(input_fasta, "fasta"):
             out_file.write(f">{record.id}\n{str(record.seq)}\n")
 
-    print(f"\nRunning convert_fasta_to_single_line() successfully.")
+    print(f"\nRunning convert_fasta_to_single_line() successfully.", flush=True)
 
 
 def remove_te(input_fasta):
@@ -95,7 +95,7 @@ def remove_te(input_fasta):
     Returns:
         str: Path to the output file with 'X' removed.
     """
-    print(f"\nStarting to remove TE nucleotides using remove_te() function.")
+    print(f"\nStarting to remove TE nucleotides using remove_te() function.", flush=True)
 
     # Generate the output file name
     output_file = f"../{os.path.basename(input_fasta)}.nonTE"
@@ -111,7 +111,7 @@ def remove_te(input_fasta):
     # Print the full path of the output file
     full_output_path = os.path.abspath(output_file)
 
-    print(f"\nTE nucleotides were removed successfully. Output saved to {full_output_path}.")
+    print(f"\nTE nucleotides were removed successfully. Output saved to {full_output_path}.", flush=True)
     
 
 
