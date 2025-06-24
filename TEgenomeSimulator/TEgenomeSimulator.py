@@ -6,7 +6,7 @@ from pathlib import Path
 from Bio import SeqIO
 from datetime import datetime
 
-# Use Tee to duplicate stdout and stderr to log file
+# Use Tee to duplicate stdout to log file
 class TeeLogger:
     def __init__(self, log_file_path):
         self.terminal = sys.stdout
@@ -19,6 +19,23 @@ class TeeLogger:
     def flush(self):
         self.terminal.flush()
         self.log.flush()
+
+# Use Tee to duplicate stderr to log file
+class TeeErrorLogger:
+    def __init__(self, log_file_path):
+        self.terminal_err = sys.__stderr__
+        self.log = open(log_file_path, "a")
+
+    def write(self, message):
+        for line in message.rstrip().splitlines():
+            timestamped_line = f"[{datetime.now()}] {line}\n"
+            self.terminal_err.write(timestamped_line)
+            self.log.write(timestamped_line)
+
+    def flush(self):
+        self.terminal_err.flush()
+        self.log.flush()
+
 
 # Function to check if the mode is 1 (user-provided genome) or 0 (random genome)
 def mode_check(value):
@@ -354,11 +371,12 @@ def main():
 
     # Create and initialize the log file early
     with open(log_path, "w") as log_file:
-        log_file.write(f"[{datetime.now()}] TEgenomeSimulator started.\n")
-        log_file.write(f"[{datetime.now()}] Arguments: {vars(args)}\n")
+        print(f"[{datetime.now()}] TEgenomeSimulator started.")
+        print(f"[{datetime.now()}] Arguments: {vars(args)}")
 
-    # Redirect stdout to TeeLogger after initialization
+    # Redirect stdout and stderr to TeeLogger after initialization
     sys.stdout = TeeLogger(log_path)
+    sys.stderr = TeeErrorLogger(log_path)
 
     print(f"Output Directory: {outdir}", flush=True)
 
