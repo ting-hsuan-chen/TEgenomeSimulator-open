@@ -35,7 +35,7 @@ jobs:
           export APP_NAME=tegenomesimulator
           export APP_VERSION=$(grep version setup.py | sed -E "s/.*version=['\"]([^'\"]+)['\"].*/\1/")
 
-          docker build -t ${APP_NAME}:${APP_VERSION} 
+          docker build -t ${APP_NAME}:${APP_VERSION} ./docker-recipe/v${APP_VERSION}
           docker tag ${APP_NAME}:${APP_VERSION} ghcr.io/plant-food-research-open/${APP_NAME}:${APP_VERSION}
           docker tag ${APP_NAME}:${APP_VERSION} ghcr.io/plant-food-research-open/${APP_NAME}:latest
           
