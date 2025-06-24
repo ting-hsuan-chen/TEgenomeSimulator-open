@@ -65,7 +65,7 @@ TEgenomeSimulator was initially built on [Matias Rodriguez & Wojciech Makałowsk
 ### Run modes
 TEgenomeSimulator has three modes to be specified by users using the argument `-M` or `--mode`:
 
-1) `-M 0` or`--mode 0`: **Random Synthesized Genome mode**. This mode synthesizes a random genome with multiple chromosomes that are later inserted with TEs randomly. With this mode, user must use `-c` or `--chridx` to provide a chromosome index csv file in the formate of the file [rabdin_genome_chr_index.csv](./test/input/random_genome_chr_index.csv), which contains 3 columns separated by commas, representing the desired chromosome id, chromosome length, and GC content. The simulator uses these information to synthesize chromosome sequences, followed with the simulation of TE sequence mutaion, random TE insertion and nested TE insertion (see the blue route in the flowchart).
+1) `-M 0` or`--mode 0`: **Random Synthesized Genome mode**. This mode synthesizes a random genome with multiple chromosomes that are later inserted with TEs randomly. With this mode, user must use `-c` or `--chridx` to provide a chromosome index csv file in the formate of the file [random_genome_chr_index.csv](./test/input/random_genome_chr_index.csv), which contains 3 columns separated by commas, representing the desired chromosome id, chromosome length, and GC content. The simulator uses these information to synthesize chromosome sequences, followed with the simulation of TE sequence mutaion, random TE insertion and nested TE insertion (see the blue route in the flowchart).
 
 2) `-M 1` or`--mode 1`: **Custom Genome mode**. 
   
