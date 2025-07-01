@@ -31,7 +31,7 @@ def setup_repeatmasker_input(genome, repeat):
 
     return namefa, namelib
 
-def run_repeatmasker(threads, namelib, namefa, outdir):
+def run_repeatmasker(threads, namelib, namefa, final_out):
     """
     Run RepeatMasker with the given parameters.
 
@@ -56,10 +56,10 @@ def run_repeatmasker(threads, namelib, namefa, outdir):
             ]
     
             # Run the command and capture the output
-        with open(f"{outdir}/TEgenomeSimulator.log", "a") as log_file:
+        with open(f"{final_out}/TEgenomeSimulator.log", "a") as log_file:
             subprocess.run(cmd, check=True, stdout=log_file, stderr=subprocess.STDOUT)
         
-        print(f"\nRunning RepeatMasker successfully. Output logged to {outdir}/TEgenomeSimulator.log", flush=True)
+        print(f"\nRunning RepeatMasker successfully. Output logged to {final_out}/TEgenomeSimulator.log", flush=True)
     
     except subprocess.CalledProcessError as e:
         print(f"\nError occurred while running fix_empty_seq.py: {e}", flush=True)
