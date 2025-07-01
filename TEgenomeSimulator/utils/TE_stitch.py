@@ -16,9 +16,9 @@ import subprocess
 # Input and output file names
 prefix = sys.argv[1]
 input_fasta = sys.argv[2]
-outdir = sys.argv[3]
+#outdir = sys.argv[3]
+final_out = sys.argv[3]
 name_fasta = os.path.basename(input_fasta)
-final_out = str(outdir) + "/TEgenomeSimulator_" + str(prefix) + "_result"
 output_fasta = f"{name_fasta}.stitched"
 
 # Dictionary to store sequences by TE id

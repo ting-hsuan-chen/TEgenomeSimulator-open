@@ -64,16 +64,15 @@ def mode_check(value):
     return int(value)
 
 # Function to call TE_stitch.py to combine LTR-INT-LTR for LTR retrotransposons
-def run_TE_stitch(prefix, te_lib, outdir):
+def run_TE_stitch(prefix, te_lib, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/TE_stitch.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # The command to run the external script
         te_stitch_command = [
             'python3', script_path, 
             prefix,
             te_lib,
-            outdir
+            final_out
         ]
         
         # Run the command and capture the output
@@ -88,9 +87,8 @@ def run_TE_stitch(prefix, te_lib, outdir):
 
 
 # Function to call mask_TE.py to mask and remove TE nucleodites
-def run_mask_TE(prefix, threads, stitched_telib, unmasked_genome, outdir):
+def run_mask_TE(threads, stitched_telib, unmasked_genome, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/mask_TE.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # The command to run the external script
         mask_te_command = [
@@ -112,9 +110,8 @@ def run_mask_TE(prefix, threads, stitched_telib, unmasked_genome, outdir):
         sys.exit(1)
 
 # Function to call fix_empty_seq.py to mask and remove TE nucleodites
-def run_fix_empty_seq(prefix, non_te_genome, outdir):
+def run_fix_empty_seq(non_te_genome, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/fix_empty_seq.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # The command to run the external script
         fix_empty_seq_command = [
@@ -161,18 +158,17 @@ def to_mask(args, final_out):
     fixed_non_te_genome = Path(final_out, f"{os.path.basename(unmasked_genome)}.masked.reformatted.nonTE.emptfixed")
 
     # Run the required preparation steps
-    run_TE_stitch(args.prefix, args.repeat2, args.outdir)
-    run_mask_TE(args.prefix, str(args.threads), stitched_telib, unmasked_genome, args.outdir)
-    run_fix_empty_seq(args.prefix, non_te_genome, args.outdir)
+    run_TE_stitch(args.prefix, args.repeat2, final_out)
+    run_mask_TE(str(args.threads), stitched_telib, unmasked_genome, final_out)
+    run_fix_empty_seq(non_te_genome, final_out)
 
     # Return the path to the final processed genome file
     return fixed_non_te_genome
 
 
 # Function to call summarise_rm_out.py to summarise TE composition
-def run_summarise_rm_out(prefix, rmasker_tbl, libindex, rmasker_out, outdir):
+def run_summarise_rm_out(rmasker_tbl, libindex, rmasker_out, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/summarise_rm_out.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # The command to run the external script
         summarise_rm_out_command = [
@@ -195,9 +191,8 @@ def run_summarise_rm_out(prefix, rmasker_tbl, libindex, rmasker_out, outdir):
 
 
 # Function to call the prep_sim_TE_lib.py script to generate the TE library table
-def run_prep_sim_TE_lib(prefix, repeat, maxcp, mincp, maxidn, minidn, maxsd, minsd, intact, seed, outdir):
+def run_prep_sim_TE_lib(prefix, repeat, maxcp, mincp, maxidn, minidn, maxsd, minsd, intact, seed, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/prep_sim_TE_lib.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # The command to run the external script
         prep_telib_command = [
@@ -212,7 +207,7 @@ def run_prep_sim_TE_lib(prefix, repeat, maxcp, mincp, maxidn, minidn, maxsd, min
             '--minsd', str(minsd),
             '-i', str(intact),
             '-s', str(seed),
-            '-o', outdir
+            '-o', final_out
         ]
         
         # Run the command and capture the output
@@ -225,9 +220,8 @@ def run_prep_sim_TE_lib(prefix, repeat, maxcp, mincp, maxidn, minidn, maxsd, min
         print(f"\nError occurred while running prep_sim_TE_lib.py: {e}", flush=True)
         sys.exit(1)
 
-def prep_sim_TE_lib_mode2(prefix, rmout_summary, seed, outdir):
+def prep_sim_TE_lib_mode2(prefix, rmout_summary, seed, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/prep_sim_TE_lib_mode2.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # The command to run the external script
         prep_telib_m2_command = [
@@ -235,7 +229,7 @@ def prep_sim_TE_lib_mode2(prefix, rmout_summary, seed, outdir):
             prefix,
             rmout_summary, 
             str(seed), 
-            outdir
+            final_out
         ]
         
         # Run the command and capture the output
@@ -249,9 +243,8 @@ def prep_sim_TE_lib_mode2(prefix, rmout_summary, seed, outdir):
         sys.exit(1)
 
 # Function to call the prep_yml_config.py script for Random Genome Mode
-def run_prep_config_random(prefix, chridx, repeat, te_table, seed, outdir):
+def run_prep_config_random(prefix, chridx, repeat, te_table, seed, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/prep_yml_config.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # Construct the command to run the prep_yml_config.py script using chromosome index file
         prep_yml_command = [
@@ -261,7 +254,7 @@ def run_prep_config_random(prefix, chridx, repeat, te_table, seed, outdir):
             '-r', repeat, 
             '-t', te_table, 
             '-s', str(seed), 
-            '-o', outdir
+            '-o', final_out
         ]
 
         # Run the command and append the output to the log file
@@ -275,9 +268,8 @@ def run_prep_config_random(prefix, chridx, repeat, te_table, seed, outdir):
         sys.exit(1)
 
 # Function to call the prep_yml_config.py script for Custom Genome Mode
-def run_prep_config_custom(prefix, genome, repeat, te_table, seed, outdir):
+def run_prep_config_custom(prefix, genome, repeat, te_table, seed, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/prep_yml_config.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # Construct the command to run the prep_yml_config.py script using genome fasta file
         prep_yml_command = [
@@ -287,7 +279,7 @@ def run_prep_config_custom(prefix, genome, repeat, te_table, seed, outdir):
             '-r', repeat, 
             '-t', te_table, 
             '-s', str(seed), 
-            '-o', outdir
+            '-o', final_out
         ]
             
         # Run the command and append the output to the log file
@@ -301,9 +293,8 @@ def run_prep_config_custom(prefix, genome, repeat, te_table, seed, outdir):
         sys.exit(1)
 
 # Function to call TE_sim_random_insertion.py for non-overlape random TE insertion
-def run_TE_sim_random_insertion(mode, prefix, alpha, beta, outdir):
+def run_TE_sim_random_insertion(mode, prefix, alpha, beta, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/TE_sim_random_insertion.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # Construct the command to run the TE_sim_random_insertion.py script
         prep_sim_command = [
@@ -312,7 +303,7 @@ def run_TE_sim_random_insertion(mode, prefix, alpha, beta, outdir):
             '-p', prefix, 
             '-a', str(alpha),
             '-b', str(beta), 
-            '-o', outdir
+            '-o', final_out
         ]
 
         # Run the command and capture the output
@@ -326,9 +317,8 @@ def run_TE_sim_random_insertion(mode, prefix, alpha, beta, outdir):
         sys.exit(1)
 
 # Function to call for nested TE insertion
-def run_TE_sim_nested_insertion(mode, prefix, alpha, beta, outdir):
+def run_TE_sim_nested_insertion(mode, prefix, alpha, beta, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/TE_sim_nested_insertion.py')
-    final_out = outdir + "/TEgenomeSimulator_" + prefix + "_result"
     try:
         # Construct the command to run the TE_sim_nested_insertion.py script
         prep_nest_command = [
@@ -337,7 +327,7 @@ def run_TE_sim_nested_insertion(mode, prefix, alpha, beta, outdir):
             '-p', prefix, 
             '-a', str(alpha),
             '-b', str(beta),
-            '-o', outdir
+            '-o', final_out
         ]
 
         # Run the command and capture the output
@@ -398,7 +388,7 @@ def main():
     sys.stdout = TeeLogger(log_path)
     sys.stderr = TeeErrorLogger(log_path)
 
-    print(f"Output Directory: {outdir}", flush=True)
+    print(f"Output Directory: {final_out}", flush=True)
 
     # Mode-based validation
     if args.mode == 0:
@@ -433,7 +423,7 @@ def main():
         else:
             print(f"To mask genome? No.")
     elif args.mode == 2:
-        print(f"Running Genome Approximation mode. TEgenomeSimulator will mask the genome under this mode.", flush=True)
+        print(f"Running TE Composition Approximation mode. TEgenomeSimulator will mask the genome under this mode.", flush=True)
         
     print(f"Prefix: {args.prefix}", flush=True)
     print(f"Repeat: {args.repeat}", flush=True)
@@ -459,30 +449,30 @@ def main():
 
     # Call the prep_sim_TE_lib.py script to generate the TE library table
     if args.mode == 0 or args.mode == 1: 
-        run_prep_sim_TE_lib(args.prefix, args.repeat, args.maxcp, args.mincp, args.maxidn, args.minidn, args.maxsd, args.minsd, args.intact, args.seed, args.outdir)
+        run_prep_sim_TE_lib(args.prefix, args.repeat, args.maxcp, args.mincp, args.maxidn, args.minidn, args.maxsd, args.minsd, args.intact, args.seed, final_out)
 
     # Call the prep_yml_config.py script to generate the config file using the TE library table generated from previous step or from the repeatmasker summary file
     te_table = os.path.join(final_out, "TElib_sim_list.table")
     if args.mode == 0:
         print("mode=0, running prep_yml_config.py for Random Genome Mode.", flush=True)
-        run_prep_config_random(args.prefix, args.chridx, args.repeat, te_table, args.seed, args.outdir)
+        run_prep_config_random(args.prefix, args.chridx, args.repeat, te_table, args.seed, final_out)
 
     elif args.mode == 1:
         if not args.to_mask: 
             print("mode=1, and --to_mask not specified, assumming user-provided genome is TE-depleted.", 
                   "Running prep_yml_config.py for Custom Genome Mode.", flush=True) 
-            run_prep_config_custom(args.prefix, args.genome, args.repeat, te_table, args.seed, args.outdir)
+            run_prep_config_custom(args.prefix, args.genome, args.repeat, te_table, args.seed, final_out)
         else: 
             # when --to_mask is enabled
             print("mode=1, and --to_mask is specified, assumming user-provided genome is not TE-depleted.", 
                   "Running mask_TE.py before prep_yml_config.py for Custom Genome Mode.", flush=True)            
-            run_TE_stitch(args.prefix, args.repeat2, args.outdir)
+            #run_TE_stitch(args.prefix, args.repeat2, args.outdir)
             fixed_non_te_genome = to_mask(args, final_out)
-            run_prep_config_custom(args.prefix, fixed_non_te_genome, args.repeat, te_table, args.seed, args.outdir)
+            run_prep_config_custom(args.prefix, fixed_non_te_genome, args.repeat, te_table, args.seed, final_out)
 
     elif args.mode == 2:
         print("mode=2, summarising TE composition and masking TE in user-provided genome.", 
-              "Running mask_TE.py and summarise_rm_out.py before prep_yml_config.py for Custom Genome Mode.", flush=True)
+              "Running mask_TE.py and summarise_rm_out.py before prep_yml_config.py for TE Composition Approximation Mode.", flush=True)
         # --to_mask is enabled under this mode
         fixed_non_te_genome = to_mask(args, final_out)
         # Specify the required input files for run_summarise_rm_out()
@@ -492,19 +482,19 @@ def main():
         rmasker_tbl = os.path.join(final_out, "repeatmasker", f"{unmasked_genome_name}.tbl")
         rmasker_out = os.path.join(final_out, "repeatmasker", f"{unmasked_genome_name}.out")
         # Create the summary files
-        run_summarise_rm_out(args.prefix, rmasker_tbl, libindex, rmasker_out, args.outdir)
+        run_summarise_rm_out(rmasker_tbl, libindex, rmasker_out, final_out)
         rmout_summary = os.path.join(final_out, "summarise_repeatmasker_out_family.txt")
-        prep_sim_TE_lib_mode2(args.prefix, rmout_summary, args.seed, args.outdir)
+        prep_sim_TE_lib_mode2(args.prefix, rmout_summary, args.seed, final_out)
         # Use the summarise file as te_table
         te_table = os.path.join(final_out, "TElib_sim_list_mode2.table")
         sim_repeat = os.path.join(final_out, f"{repeat2_name}.stitched")
-        run_prep_config_custom(args.prefix, fixed_non_te_genome, sim_repeat, te_table, args.seed, args.outdir)
+        run_prep_config_custom(args.prefix, fixed_non_te_genome, sim_repeat, te_table, args.seed, final_out)
    
     # Non-overlape random TE insertion
-    run_TE_sim_random_insertion(args.mode, args.prefix, args.alpha, args.beta, args.outdir)
+    run_TE_sim_random_insertion(args.mode, args.prefix, args.alpha, args.beta, final_out)
 
     # Nested TE insertion
-    run_TE_sim_nested_insertion(args.mode, args.prefix, args.alpha, args.beta, args.outdir)
+    run_TE_sim_nested_insertion(args.mode, args.prefix, args.alpha, args.beta, final_out)
 
 if __name__ == "__main__":
     main()

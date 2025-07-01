@@ -9,14 +9,14 @@ from Bio import SeqIO
 prefix = sys.argv[1]
 rm_outsum = sys.argv[2]
 seed = sys.argv[3]
-out_dir = sys.argv[4]
+final_out = sys.argv[4]
 
 print("\n", flush=True)
 print("#########################################################", flush=True)
 print("### Prepare TE library table with simulation settings ###", flush=True)
 print("#########################################################", flush=True)
 print(f"Using repeatmasker output summary file {rm_outsum}", flush=True)
-print(f"Output directory set as {out_dir}", flush=True)
+print(f"Output directory set as {final_out}", flush=True)
 
 #Set seed
 if seed:
@@ -117,9 +117,8 @@ df = te_sum[['original_family', 'subclass', 'superfamily', 'copynumber', 'idn', 
 df = df.rename(columns={'original_family': '#TE_family', 'copynumber': 'count', 'full_length_bp': 'length'})
 
 # write to output
-final_out = str(out_dir) + "/TEgenomeSimulator_" + str(prefix) + "_result"
 output_file = os.path.join(final_out, "TElib_sim_list_mode2.table")
 df.to_csv(output_file, sep='\t', index=False, header=True)
 
-print(f"Generated the TE library table for simulation. File saved as {out_dir}/TElib_sim_list_mode2.table", flush=True)
+print(f"Generated the TE library table for simulation. File saved as {final_out}/TElib_sim_list_mode2.table", flush=True)
 print("\n", flush=True)

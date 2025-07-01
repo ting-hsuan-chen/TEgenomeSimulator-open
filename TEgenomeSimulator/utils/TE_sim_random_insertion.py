@@ -394,10 +394,9 @@ def generate_genome_sequence(repeats_dict, rand_rep_pos, rand_chr_dict, shuffled
     return genome_dict, new_repeats_coord_dict
 
 #Print final genome sequence to file (function created by THC)
-def print_genome_data(genome_dict, new_repeats_coord_dict, params, out_dir):
+def print_genome_data(genome_dict, new_repeats_coord_dict, params, final_out):
     #Setup output directory   
     file_prefix = str(params['prefix'])
-    final_out = out_dir + '/TEgenomeSimulator_' + file_prefix + '_result'
     os.chdir(final_out)
     
     #Output files
@@ -463,7 +462,7 @@ def main():
     prefix = args.prefix
     alpha = args.alpha 
     beta = args.beta
-    out_dir = args.outdir
+    final_out = args.outdir
     
     print("\n", flush=True)
     print("##############################################################", flush=True)
@@ -472,7 +471,6 @@ def main():
     print(f"Using mode {mode} (0 for random genome; 1 for custome genome)", flush=True)
 
     # Config file
-    final_out = out_dir + '/TEgenomeSimulator_' + prefix + '_result'
     yml_file = "TEgenomeSimulator_" + str(prefix) + ".yml"
     print(f"Using config file {yml_file}", flush=True)
 
@@ -510,6 +508,6 @@ def main():
     #Generate genome sequence with TE insertion
     genome, new_repeats_coord = generate_genome_sequence(repeats_dict, repeats_coord, chrs_dict, shuffled_repeats, alpha, beta, mode)
     #Output to fasta and gff files
-    print_genome_data(genome, new_repeats_coord, params_chr, out_dir)
+    print_genome_data(genome, new_repeats_coord, params_chr, final_out)
 if __name__ == "__main__":
     main()
