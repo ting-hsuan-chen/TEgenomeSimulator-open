@@ -56,6 +56,7 @@ print(f"Output directory set as {args.outdir}")
 #Set seed
 if seed:
     random.seed(seed)
+    np.random.seed(seed)
 
 # Load files
 te_lib = SeqIO.to_dict(SeqIO.parse(te_fa ,"fasta"))
