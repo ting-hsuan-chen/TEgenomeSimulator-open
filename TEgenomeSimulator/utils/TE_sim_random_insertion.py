@@ -206,7 +206,6 @@ def get_identity(mean, sd):
 
 ##Generate vector of coords for base_changes and indels
 def generate_mismatches(sequence, identity, indels):
-    alphabet = ["T", "G", "C", "A"]
     seq_len = len(sequence)
     seq = sequence
     #Calculate number of nucleotides that need to be changed (i.e. SNPs)
@@ -228,7 +227,9 @@ def add_base_changes(repeat_seq, base_changes_vec):
     alphabet = ["T", "G", "C", "A"]
     repeat_seq_list = list(repeat_seq)
     for pos in base_changes_vec:
-        new_base = random.choice(list(set(alphabet) - set(repeat_seq_list[pos])))
+        # Ensure deterministic order by sorting the list
+        choices = sorted(set(alphabet) - set(repeat_seq_list[pos]))
+        new_base = random.choice(choices)
         repeat_seq_list[pos] = new_base
     new_repeat_seq =  "".join(repeat_seq_list)
     return new_repeat_seq
