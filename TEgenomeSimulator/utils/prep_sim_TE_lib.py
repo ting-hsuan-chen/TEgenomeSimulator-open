@@ -26,8 +26,7 @@ parser.add_argument('--maxsd', type=int,
                     help="The upper bound of standard deviation of mean identity to be sampled for each TE family.")
 parser.add_argument('--minsd', type=int, 
                     help="The lower bound of standard deviation of mean identity to be sampled for each TE family.")
-parser.add_argument("-i", "--intact", type=float,
-                    default=0.001, help="maximum proportion of intact TEs per TE family (default is 0.001, i.e. 0.1%)")
+parser.add_argument("-i", "--intact", type=float, help="maximum proportion of intact TEs per TE family (default is 0.001, i.e. 0.1%)")
 parser.add_argument('-s', '--seed', type=int, 
                     default=1, help="Random seed (default is 1).")
 parser.add_argument("-o", "--outdir", type=str,

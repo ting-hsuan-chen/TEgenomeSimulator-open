@@ -193,10 +193,10 @@ def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode)
     
 
 ##Print final sequence to files (function created by THC)
-def print_genome_nest_data(genome, isrt_te_dict, nest_te_dict, new_gff, params, out_dir):
+def print_genome_nest_data(genome, isrt_te_dict, nest_te_dict, new_gff, params, final_out):
     #Setup output directory   
     file_prefix = str(params['prefix'])
-    os.chdir(Path(out_dir, "TEgenomeSimulator_" + file_prefix + "_result"))
+    os.chdir(Path(final_out))
     
     #Specifiy output files
     genome_fa = file_prefix + "_genome_sequence_out_final.fasta"
@@ -246,18 +246,17 @@ def main():
     prefix = args.prefix
     alpha = args.alpha
     beta = args.beta
-    out_dir = args.outdir
+    final_out = args.outdir
     
-    print("\n")
-    print("##############################################################")
-    print("### Mutate TE sequence and perform non-overlap TE insertion###")
-    print("##############################################################")
-    print(f"Using mode {mode} (0 for random genome; 1 for custome genome)")
+    print("\n", flush=True)
+    print("##############################################################", flush=True)
+    print("### Mutate TE sequence and perform non-overlap TE insertion###", flush=True)
+    print("##############################################################", flush=True)
+    print(f"Using mode {mode} (0 for random genome; 1 for custome genome)", flush=True)
 
     # Config file
-    final_out = out_dir + '/TEgenomeSimulator_' + prefix + '_result'
     yml_file = "TEgenomeSimulator_" + str(prefix) + ".yml"
-    print(f"Using config file {yml_file}")
+    print(f"Using config file {yml_file}", flush=True)
 
     # Mode-dependent config file loading
     if args.mode == 0:
@@ -295,7 +294,7 @@ def main():
     genome, isrt_te_dict, nest_te_dict, new_gff = generate_genome_nests(repeats_dict, isrt_te, gff, genome, alpha, beta, mode)
 
     #Output new genome fasta, all inserted TE fasta, and GFF after nested insertion.
-    print_genome_nest_data(genome, isrt_te_dict, nest_te_dict, new_gff, params_chr, out_dir)
+    print_genome_nest_data(genome, isrt_te_dict, nest_te_dict, new_gff, params_chr, final_out)
 
 
 if __name__ == "__main__":

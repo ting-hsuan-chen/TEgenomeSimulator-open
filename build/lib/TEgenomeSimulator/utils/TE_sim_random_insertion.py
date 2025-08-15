@@ -206,7 +206,6 @@ def get_identity(mean, sd):
 
 ##Generate vector of coords for base_changes and indels
 def generate_mismatches(sequence, identity, indels):
-    alphabet = ["T", "G", "C", "A"]
     seq_len = len(sequence)
     seq = sequence
     #Calculate number of nucleotides that need to be changed (i.e. SNPs)
@@ -228,7 +227,9 @@ def add_base_changes(repeat_seq, base_changes_vec):
     alphabet = ["T", "G", "C", "A"]
     repeat_seq_list = list(repeat_seq)
     for pos in base_changes_vec:
-        new_base = random.choice(list(set(alphabet) - set(repeat_seq_list[pos])))
+        # Ensure deterministic order by sorting the list
+        choices = sorted(set(alphabet) - set(repeat_seq_list[pos]))
+        new_base = random.choice(choices)
         repeat_seq_list[pos] = new_base
     new_repeat_seq =  "".join(repeat_seq_list)
     return new_repeat_seq
@@ -394,10 +395,9 @@ def generate_genome_sequence(repeats_dict, rand_rep_pos, rand_chr_dict, shuffled
     return genome_dict, new_repeats_coord_dict
 
 #Print final genome sequence to file (function created by THC)
-def print_genome_data(genome_dict, new_repeats_coord_dict, params, out_dir):
+def print_genome_data(genome_dict, new_repeats_coord_dict, params, final_out):
     #Setup output directory   
     file_prefix = str(params['prefix'])
-    final_out = out_dir + '/TEgenomeSimulator_' + file_prefix + '_result'
     os.chdir(final_out)
     
     #Output files
@@ -463,18 +463,17 @@ def main():
     prefix = args.prefix
     alpha = args.alpha 
     beta = args.beta
-    out_dir = args.outdir
+    final_out = args.outdir
     
-    print("\n")
-    print("##############################################################")
-    print("### Mutate TE sequence and perform non-overlap TE insertion###")
-    print("##############################################################")
-    print(f"Using mode {mode} (0 for random genome; 1 for custome genome)")
+    print("\n", flush=True)
+    print("##############################################################", flush=True)
+    print("### Mutate TE sequence and perform non-overlap TE insertion###", flush=True)
+    print("##############################################################", flush=True)
+    print(f"Using mode {mode} (0 for random genome; 1 for custome genome)", flush=True)
 
     # Config file
-    final_out = out_dir + '/TEgenomeSimulator_' + prefix + '_result'
     yml_file = "TEgenomeSimulator_" + str(prefix) + ".yml"
-    print(f"Using config file {yml_file}")
+    print(f"Using config file {yml_file}", flush=True)
 
     # Mode-dependent config file loading
     if args.mode == 0:
@@ -510,6 +509,6 @@ def main():
     #Generate genome sequence with TE insertion
     genome, new_repeats_coord = generate_genome_sequence(repeats_dict, repeats_coord, chrs_dict, shuffled_repeats, alpha, beta, mode)
     #Output to fasta and gff files
-    print_genome_data(genome, new_repeats_coord, params_chr, out_dir)
+    print_genome_data(genome, new_repeats_coord, params_chr, final_out)
 if __name__ == "__main__":
     main()

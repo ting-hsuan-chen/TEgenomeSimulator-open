@@ -242,7 +242,7 @@ def create_high_level_summary(summary_fam, genome_size, masked_size):
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print("Usage: python summarise_rm_out.py <RMaskerTbl> <LibIndex> <RMaskerOut>,<OutDir>.")
+        print("Usage: python summarise_rm_out.py <RMaskerTbl> <LibIndex> <RMaskerOut>,<OutDir>.", flush=True)
         sys.exit(1)
     
     rmasker_tbl = sys.argv[1]

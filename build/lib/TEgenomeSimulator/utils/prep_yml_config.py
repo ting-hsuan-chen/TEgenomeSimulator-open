@@ -30,15 +30,15 @@ genome_fa = args.genome
 te_fa = args.repeat
 te_table = args.table
 seed = args.seed
-outdir = args.outdir
+final_out = args.outdir
 
-print("\n")
-print("#############################################")
-print("### Prepare TEgenomeSimulator config file ###")
-print("#############################################")
-print(f"Using genome fasta file {args.genome}")
-print(f"Using repeat fasta file {args.repeat}")
-print(f"Output directory set as {args.outdir}")
+print("\n", flush=True)
+print("#############################################", flush=True)
+print("### Prepare TEgenomeSimulator config file ###", flush=True)
+print("#############################################", flush=True)
+print(f"Using genome fasta file {args.genome}", flush=True)
+print(f"Using repeat fasta file {args.repeat}", flush=True)
+print(f"Output directory set as {final_out}", flush=True)
 
 # Generate chromosome dictionary
 if chr_index:
@@ -59,7 +59,6 @@ elif genome_fa:
             }
 
 # Create the config file
-final_out = outdir + '/TEgenomeSimulator_' + prefix + '_result'
 yml_name = 'TEgenomeSimulator_' + prefix + '.yml'
 
 config_out = open(Path(final_out, yml_name), 'w')
@@ -101,5 +100,5 @@ elif genome_fa:
         i += 1
     config_out.close()
 
-print(f"Generated the config file for simulation. File saved as {outdir}/TEgenomeSimulator_{prefix}.yml")
-print("\n")
+print(f"Generated the config file for simulation. File saved as {final_out}/TEgenomeSimulator_{prefix}.yml", flush=True)
+print("\n", flush=True)
