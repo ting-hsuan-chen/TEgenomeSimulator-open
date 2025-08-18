@@ -1,0 +1,76 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%labels
+    Maintainer: ting-hsuan.chen@plantandfood.co.nz
+    Version: 1.0.0
+    Description: TEgenomeSimulator, a tool to simulate TE mutation and insertion into a random or user-provided genome.
+
+%environment
+    export PATH=$PATH:/opt/RepeatMasker
+    export PATH=$PATH:/usr/local/bin
+
+%files
+    . /opt/TEgenomeSimulator
+
+%post
+    apt-get update && apt-get install -y \
+        build-essential \
+        wget \
+        curl \
+        perl \
+        csh \
+        zlib1g-dev \
+        bc \
+        python3 \
+        python3-pip \
+        samtools \
+        unzip \
+        git && \
+        rm -rf /var/lib/apt/lists/*
+
+    # Install Python dependencies (including h5py required by RepeatMasker)
+    pip3 install numpy==1.26.2 pandas==2.2.1 biopython==1.81 pyyaml==6.0.1 h5py matplotlib 
+
+    # Install RepeatMasker 
+    # RepeatMasker v4.1.8 contains Dfam v3.9 (2025-03-10)
+    cd /opt
+    wget https://www.repeatmasker.org/RepeatMasker/RepeatMasker-4.1.8.tar.gz && \
+    tar -xzf RepeatMasker-4.1.8.tar.gz && \
+    cd RepeatMasker && \
+    mkdir -p Libraries
+
+    # Install RMBlast
+    wget https://www.repeatmasker.org/rmblast/rmblast-2.14.1+-x64-linux.tar.gz && \
+    tar -xzf rmblast-2.14.1+-x64-linux.tar.gz && \
+    mv rmblast-2.14.1 RMBlast
+
+    # Install TRF
+    wget https://tandem.bu.edu/trf/downloads/trf409.linux64 -O trf && \
+    chmod +x trf && \
+    mv trf /opt/RepeatMasker/trf
+
+    # Configure RepeatMasker
+    cd /opt/RepeatMasker
+    echo -e "\n\n" | ./configure \
+        -libdir /opt/RepeatMasker/Libraries \
+        -trf_prgm /opt/RepeatMasker/trf \
+        -rmblast_dir /opt/RepeatMasker/RMBlast/bin \
+        -default_search_engine rmblast
+
+    # Install TEgenomeSimulator Python package
+    cd /opt/TEgenomeSimulator
+    pip3 install .
+
+%runscript
+    exec tegenomesimulator "$@"
+
+%test
+    echo "Testing RepeatMasker:"
+    RepeatMasker -version
+
+    echo "Testing samtools:"
+    samtools --version
+
+    echo "Testing tegenomesimulator Python CLI:"
+    tegenomesimulator --help
