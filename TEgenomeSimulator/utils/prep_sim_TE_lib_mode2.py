@@ -46,38 +46,38 @@ te_sum['indels'] = te_sum['indels'].astype(int)
 
 # tsd (use prior knowledge)
 te_superfamily = list(te_sum['superfamily'])
-ltr_retro = ['LTR/Copia', 'LTR/Gypsy', 'LTR/Ty3', 'LTR/Solo', 'LTR/unknown'] 
-line = ['LINE/unknown', 'LINE/L1', 'LINE/LINE_Unknown']
-sine = ['SINE/unknown', 'SINE/tRNA', 'SINE/SINE_Unknown']
+ltr_retro = ['LTR/Copia', 'LTR/Gypsy', 'LTR/Ty3', 'LTR/Solo', 'LTR/unknown', 'LTR'] 
+line = ['LINE/unknown', 'LINE/L1', 'LINE/LINE_Unknown', 'LINE']
+sine = ['SINE/unknown', 'SINE/tRNA', 'SINE/SINE_Unknown', 'SINE']
 DTA = ['DNA/hAT', 'DNAnona/hAT', 'DNAauto/hAT', 'DNA/DTA']
-DTC = ['DNA/CACTA', 'DNAnona/CACTA', 'DNAauto/CACTA', 'DNA/DTC']
-DTH = ['DNA/Harbinger', 'DNA/DTH']
-DTM = ['DNA/MuDR', 'DNAnona/MULE', 'DNAauto/MULE', 'DNA/DTM']
-DTT = ['DNA/Mariner', 'DNA/DTT']
+DTC = ['DNA/CACTA', 'DNAnona/CACTA', 'DNAauto/CACTA', 'DNA/DTC', 'DNA/CMC', 'DNA/Enspm', 'DNA/Transib']
+DTH = ['DNA/Harbinger', 'DNA/DTH', 'DNA/PIF', 'DNA/HarbS', 'DNA/ISL2EU']
+DTM = ['DNA/MuDR', 'DNAnona/MULE', 'DNAauto/MULE', 'DNA/DTM', 'DNA/MULE']
+DTT = ['DNA/Mariner', 'DNA/DTT', 'DNA/TcMar', 'DNA/Tc1']
 helitron = ['DNA/Helitron', 'DNAnona/Helitron', 'DNAauto/Helitron', 'RC/Helitron']
-mite = ['MITE/Stow', 'MITE/Tourist']
+mite = ['MITE']
 
 tsd = []
 for sup_fam in te_superfamily:
-    if sup_fam in ltr_retro:
+    if any(sup_fam.upper().startswith(te.upper()) for te in ltr_retro):
         tsd_range = '5,5'
-    elif sup_fam in line:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in line):
         tsd_range = '5,20'
-    elif sup_fam in sine:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in sine):
         tsd_range = '5,20'
-    elif sup_fam in DTA:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTA):
         tsd_range = '5,8'
-    elif sup_fam in DTC:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTC):
         tsd_range = '2,4'
-    elif sup_fam in DTH:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTH):
         tsd_range = '3,3'
-    elif sup_fam in DTM:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTM):
         tsd_range = '8,9'
-    elif sup_fam in DTT:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTT):
         tsd_range = '2,2'
-    elif sup_fam in helitron:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in helitron):
         tsd_range = '0,0'
-    elif sup_fam in mite:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in mite):
         tsd_range = '2,10'
     else:
         tsd_range = '0,0' 
