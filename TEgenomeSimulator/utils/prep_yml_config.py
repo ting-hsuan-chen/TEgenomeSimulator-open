@@ -21,7 +21,7 @@ parser.add_argument("-t","--table", type=str,
 parser.add_argument("-s","--seed", type=str, default="1",
                     help="seed value for simulation. default = 1")
 parser.add_argument("-o", "--outdir", type=str,
-                    help="output firectory")
+                    help="output directory")
 
 args = parser.parse_args()
 prefix = args.prefix
@@ -30,21 +30,20 @@ genome_fa = args.genome
 te_fa = args.repeat
 te_table = args.table
 seed = args.seed
-outdir = args.outdir
+final_out = args.outdir
 
-print("\n")
-print("#############################################")
-print("### Prepare TEgenomeSimulator config file ###")
-print("#############################################")
-print(f"Using genome fasta file {args.genome}")
-print(f"Using repeat fasta file {args.repeat}")
-print(f"Output directory set as {args.outdir}")
+print("\n", flush=True)
+print("#############################################", flush=True)
+print("### Prepare TEgenomeSimulator config file ###", flush=True)
+print("#############################################", flush=True)
+print(f"Using genome fasta file {args.genome}", flush=True)
+print(f"Using repeat fasta file {args.repeat}", flush=True)
+print(f"Output directory set as {final_out}", flush=True)
 
 # Generate chromosome dictionary
 if chr_index:
     # Randome Genome Mode using chromosome index table
     df = pd.read_csv(str(chr_index), sep=',', names=['chr_id', 'length', 'gc'])
-    #rand_genome_lib_w_len = df.set_index('chr_id')[['length', 'gc']].to_dict()
     rand_genome_lib_w_len = df.set_index('chr_id').to_dict('index')
 
 elif genome_fa:
@@ -60,10 +59,8 @@ elif genome_fa:
             }
 
 # Create the config file
-final_out = outdir + '/TEgenomeSimulator_' + prefix + '_result'
 yml_name = 'TEgenomeSimulator_' + prefix + '.yml'
-#os.chdir(Path(outdir, "TEgenomeSimulator_" + file_prefix + "_result"))
-#table_out = open(Path(final_out, "TElib_sim_list.table"), "w")
+
 config_out = open(Path(final_out, yml_name), 'w')
 if chr_index:
     # Generate config file for Randome Genome Mode
@@ -103,5 +100,5 @@ elif genome_fa:
         i += 1
     config_out.close()
 
-print(f"Generated the config file for simulation. File saved as {outdir}/TEgenomeSimulator_{prefix}.yml")
-print("\n")
+print(f"Generated the config file for simulation. File saved as {final_out}/TEgenomeSimulator_{prefix}.yml", flush=True)
+print("\n", flush=True)

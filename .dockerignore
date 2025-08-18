@@ -1,0 +1,11 @@
+# ignore fasta file
+*.fasta
+
+# ignore gff
+*.gff
+
+# ignore output folder
+./test/output
+
+# ignore apptainer image
+*.sif

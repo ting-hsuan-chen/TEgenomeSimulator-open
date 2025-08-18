@@ -1,0 +1,24 @@
+Bootstrap: docker
+From: ghcr.io/plant-food-research-open/tegenomesimulator:1.0.0
+
+%labels
+    Maintainer: ting-hsuan.chen@plantandfood.co.nz
+    Version: 1.0.0
+    Description: TEgenomeSimulator, a tool to simulate TE mutation and insertion into a random or user-provided genome.
+
+%environment
+    export PATH=$PATH:/opt/RepeatMasker
+    export PATH=$PATH:/usr/local/bin
+
+%runscript
+    exec tegenomesimulator "$@"
+
+%test
+    echo "Testing RepeatMasker:"
+    RepeatMasker -version
+
+    echo "Testing samtools:"
+    samtools --version
+
+    echo "Testing tegenomesimulator Python CLI:"
+    tegenomesimulator --help
