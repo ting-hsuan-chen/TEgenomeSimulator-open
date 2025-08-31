@@ -9,3 +9,5 @@
 
 # ignore apptainer image
 *.sif
+
+*.pyc

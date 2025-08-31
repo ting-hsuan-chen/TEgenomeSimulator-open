@@ -1,0 +1,39 @@
+[project]
+name = "tegenomesimulator"
+version = "1.0.0"
+description = "A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome."
+authors = [
+    {name = "Ting-Hsuan Chen", email = "Ting-Hsuan.Chen@plantandfood.co.nz"}
+]
+dependencies = [
+    "setuptools>=80.9.0",
+    "biopython",
+    "numpy",
+    "pandas",
+    "pyyaml",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "GPL"}
+keywords = ["biology", "genomics", "bioinformatics", "transposon", "transposable element", "simulation"]
+classifiers = [
+    "Development Status :: 1 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GPL License",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+]
+
+
+[project.urls]
+Homepage = "https://github.com/Plant-Food-Research-Open/TEgenomeSimulator"
+
+[project.scripts]
+tegenomesimulator = "TEgenomeSimulator.TEgenomeSimulator:main"
+[tool.pdm]
+distribution = false
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
