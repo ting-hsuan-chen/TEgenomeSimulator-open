@@ -16,9 +16,9 @@ import subprocess
 # Input and output file names
 prefix = sys.argv[1]
 input_fasta = sys.argv[2]
-outdir = sys.argv[3]
+#outdir = sys.argv[3]
+final_out = sys.argv[3]
 name_fasta = os.path.basename(input_fasta)
-final_out = str(outdir) + "/TEgenomeSimulator_" + str(prefix) + "_result"
 output_fasta = f"{name_fasta}.stitched"
 
 # Dictionary to store sequences by TE id
@@ -105,7 +105,7 @@ for te_id, parts in te_dict.items():
 # Write the modified sequences to the output file
 SeqIO.write(new_records, Path(final_out, output_fasta), "fasta")
 
-print(f"Stitched FASTA saved as {output_fasta}")
+print(f"Stitched FASTA saved as {output_fasta}", flush=True)
 
 # Index stitched TE library
 input_file = Path(final_out, output_fasta)

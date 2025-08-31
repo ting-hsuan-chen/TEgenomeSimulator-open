@@ -25,13 +25,13 @@ def add_random_nucleotides(fasta_file, output_file):
             # Randomly add two nucleotides
             random_seq = random.choice(nucleotides) + random.choice(nucleotides)
             record.seq = Seq(random_seq)  # Wrap the string in a Seq object
-            print(f"Modified {record.id} with sequence: {random_seq}")
+            print(f"Modified {record.id} with sequence: {random_seq}", flush=True)
 
         modified_sequences.append(record)
 
     # Write the modified sequences to a new FASTA file
     SeqIO.write(modified_sequences, output_file, "fasta")
-    print(f"Modified FASTA saved to {output_file}")
+    print(f"Modified FASTA saved to {output_file}", flush=True)
 
 # Input and output file names
 input_fasta = sys.argv[1]
