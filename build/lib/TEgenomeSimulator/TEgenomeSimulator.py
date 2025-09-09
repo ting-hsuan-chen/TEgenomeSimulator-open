@@ -293,7 +293,7 @@ def run_prep_config_custom(prefix, genome, repeat, te_table, seed, final_out):
         sys.exit(1)
 
 # Function to call TE_sim_random_insertion.py for non-overlape random TE insertion
-def run_TE_sim_random_insertion(mode, prefix, alpha, beta, final_out):
+def run_TE_sim_random_insertion(mode, prefix, frag_mode, alpha, beta, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/TE_sim_random_insertion.py')
     try:
         # Construct the command to run the TE_sim_random_insertion.py script
@@ -301,6 +301,7 @@ def run_TE_sim_random_insertion(mode, prefix, alpha, beta, final_out):
             'python3', script_path, 
             '-M', str(mode),
             '-p', prefix, 
+            '-f', str(frag_mode),
             '-a', str(alpha),
             '-b', str(beta), 
             '-o', final_out
@@ -317,7 +318,7 @@ def run_TE_sim_random_insertion(mode, prefix, alpha, beta, final_out):
         sys.exit(1)
 
 # Function to call for nested TE insertion
-def run_TE_sim_nested_insertion(mode, prefix, alpha, beta, final_out):
+def run_TE_sim_nested_insertion(mode, prefix, frag_mode, alpha, beta, final_out):
     script_path = os.path.join(os.path.dirname(__file__), 'utils/TE_sim_nested_insertion.py')
     try:
         # Construct the command to run the TE_sim_nested_insertion.py script
@@ -325,6 +326,7 @@ def run_TE_sim_nested_insertion(mode, prefix, alpha, beta, final_out):
             'python3', script_path, 
             '-M', str(mode),
             '-p', prefix, 
+            '-f', str(frag_mode),
             '-a', str(alpha),
             '-b', str(beta),
             '-o', final_out
@@ -359,15 +361,32 @@ def main():
     parser.add_argument('--minsd', type=int, default=1, help="The lower bound of standard deviation of mean identity to be sampled for each TE family (default is 1).")
     parser.add_argument('-c', '--chridx', type=str, help="Chromosome index file if mode 0 is selected.")
     parser.add_argument('-g', '--genome', type=str, help="Genome fasta file if mode 1 or 2 is selected.")
+    parser.add_argument('-f', '--frag_mode', type=int, default=0, help="Mode for TE fragmentation (0, 1, or 2). If frag_mode is 2, uses an integrity list read from --te_table, otherwise beta distribution.")
     parser.add_argument('-a', '--alpha', type=float, default=0.5, help="Alpha value for the beta distribution used for fragmentation simulation (default is 0.5).")
     parser.add_argument('-b', '--beta', type=float, default=0.7, help="Beta value for the beta distribution used for fragmentation simulation (default is 0.7).")
     parser.add_argument('-i', '--intact', type=float, default=0.001, help="Maximum probability of inserting intact TEs per family (default is 0.001; i.e. 0.1 percent).")
     parser.add_argument('-s', '--seed', type=int, default=1, help="Random seed (default is 1).")
     parser.add_argument('-t', '--threads', type=int, default=1, help="Threads for running RepeatMasker (default is 1)")
     parser.add_argument('-o', '--outdir', type=str, help="Output directory.", required=True)
+    parser.add_argument('--te_table', type=str, help="Path to an existing TE mutagenesis settings table (modes 0 and 1 only).")
+    parser.add_argument('--te_scan_only', action='store_true', help="Mode 2 only: stop after TE composition profiling and TE table generation.")
     
     # Parse arguments
     args = parser.parse_args()
+
+    # Validate --te_table and --te_scan_only options
+    if args.te_table:
+        if args.mode not in [0, 1]:
+            print("Error: --te_table can only be used with mode 0 or mode 1.", flush=True)
+            sys.exit(1)
+        args.te_table = Path(args.te_table).resolve()
+        if not args.te_table.is_file():
+            print(f"Error: The specified TE table file does not exist: {args.te_table}", flush=True)
+            sys.exit(1)
+
+    if args.te_scan_only and args.mode != 2:
+        print("Error: --te_scan_only can only be used with mode 2.", flush=True)
+        sys.exit(1)
 
     # Convert user-provided output path to absolute path
     outdir = Path(args.outdir).resolve()
@@ -431,28 +450,42 @@ def main():
         print(f"Repeat2: {args.repeat2}", flush=True)
     print(f"Chromosome Index: {args.chridx}", flush=True)
     print(f"Genome File: {args.genome}", flush=True)
-    print(f"Alpha: {args.alpha}", flush=True)
-    print(f"Beta: {args.beta}", flush=True)
+    
 
     if args.mode == 0 or args.mode == 1:
-        print(f"Max Copies: {args.maxcp}", flush=True)
-        print(f"Min Copies: {args.mincp}", flush=True)        
-        print(f"Upper bound of mean identity: {args.maxidn}", flush=True)
-        print(f"Lower bound of mean identity: {args.minidn}", flush=True)
-        print(f"Upper bound of sd of mean identity: {args.maxsd}", flush=True)
-        print(f"Lower bound of sd of mean ideneity: {args.minsd}", flush=True)
-        print(f"Max chance of intact insertion: {args.intact}", flush=True)
+        if args.te_table:
+            print(f"Using user-provided TE mutagenesis settings table: {args.te_table}", flush=True)
+            if args.frag_mode in [0, 1]:
+               print(f"frag_mode={args.frag_mode}. Expecting 11 columns in the table and beta distribution will be used for integrity simulation. See README for table format.", flush=True)
+            if args.frag_mode == 2:
+               print(f"frag_mode={args.frag_mode}. Expecting 12 columns in the table and will use the integrity list for integrity simulation. See README for table format.", flush=True)
+        else:  
+            print(f"Max Copies: {args.maxcp}", flush=True)
+            print(f"Min Copies: {args.mincp}", flush=True)        
+            print(f"Upper bound of mean identity: {args.maxidn}", flush=True)
+            print(f"Lower bound of mean identity: {args.minidn}", flush=True)
+            print(f"Upper bound of sd of mean identity: {args.maxsd}", flush=True)
+            print(f"Lower bound of sd of mean ideneity: {args.minsd}", flush=True)
+            print(f"Max chance of intact insertion: {args.intact}", flush=True)
+            print(f"Alpha: {args.alpha}", flush=True)
+            print(f"Beta: {args.beta}", flush=True)
     else:
         print(f"TE copy number, mean sequence identity, sd, and max chance of intact insertion evaluated from repeatmasker output.", flush=True)
 
     print(f"Seed: {args.seed}", flush=True)
 
-    # Call the prep_sim_TE_lib.py script to generate the TE library table
-    if args.mode == 0 or args.mode == 1: 
-        run_prep_sim_TE_lib(args.prefix, args.repeat, args.maxcp, args.mincp, args.maxidn, args.minidn, args.maxsd, args.minsd, args.intact, args.seed, final_out)
+    # ===================== Mode-specific steps =====================
 
-    # Call the prep_yml_config.py script to generate the config file using the TE library table generated from previous step or from the repeatmasker summary file
-    te_table = os.path.join(final_out, "TElib_sim_list.table")
+    # Call the prep_sim_TE_lib.py script to generate the TE library table
+    if args.mode in [0, 1]:
+        if args.te_table:
+            te_table = args.te_table            
+        else:
+            print("Generating TE mutagenesis settings table...", flush=True)
+            run_prep_sim_TE_lib(args.prefix, args.repeat, args.maxcp, args.mincp, args.maxidn, args.minidn, args.maxsd, args.minsd, args.intact, args.seed, final_out)
+            te_table = os.path.join(final_out, "TElib_sim_list.table")
+
+    # Call the prep_yml_config.py script to generate the config file using the TE library table generated from previous step or supplied by users    
     if args.mode == 0:
         print("mode=0, running prep_yml_config.py for Random Genome Mode.", flush=True)
         run_prep_config_random(args.prefix, args.chridx, args.repeat, te_table, args.seed, final_out)
@@ -466,7 +499,6 @@ def main():
             # when --to_mask is enabled
             print("mode=1, and --to_mask is specified, assumming user-provided genome is not TE-depleted.", 
                   "Running mask_TE.py before prep_yml_config.py for Custom Genome Mode.", flush=True)            
-            #run_TE_stitch(args.prefix, args.repeat2, args.outdir)
             fixed_non_te_genome = to_mask(args, final_out)
             run_prep_config_custom(args.prefix, fixed_non_te_genome, args.repeat, te_table, args.seed, final_out)
 
@@ -487,14 +519,21 @@ def main():
         prep_sim_TE_lib_mode2(args.prefix, rmout_summary, args.seed, final_out)
         # Use the summarise file as te_table
         te_table = os.path.join(final_out, "TElib_sim_list_mode2.table")
+        # Check whether to proceed to full mode 2 simulation
+        if args.te_scan_only:
+            print(f"Mode 2: te_scan_only was enabled.")
+            print(f"TE composition profiling complete. TE mutagenesis settings table generated at {te_table}. Stopping as requested.", flush=True)
+            sys.exit(0)
+        # Prepare config .yaml file
         sim_repeat = os.path.join(final_out, f"{repeat2_name}.stitched")
         run_prep_config_custom(args.prefix, fixed_non_te_genome, sim_repeat, te_table, args.seed, final_out)
    
+    # ===================== Final simulation steps =====================
     # Non-overlape random TE insertion
-    run_TE_sim_random_insertion(args.mode, args.prefix, args.alpha, args.beta, final_out)
+    run_TE_sim_random_insertion(args.mode, args.prefix, args.frag_mode, args.alpha, args.beta, final_out)
 
     # Nested TE insertion
-    run_TE_sim_nested_insertion(args.mode, args.prefix, args.alpha, args.beta, final_out)
+    run_TE_sim_nested_insertion(args.mode, args.prefix, args.frag_mode, args.alpha, args.beta, final_out)
 
 if __name__ == "__main__":
     main()
