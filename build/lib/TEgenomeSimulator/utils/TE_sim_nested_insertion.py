@@ -54,7 +54,7 @@ def load_isrt_te_fa(inserted_te_fasta_file):
 
 
 ##Generate genome with nested insertions (function modified by THC)
-def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode):
+def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode, frag_mode):
     rep_count = []
     new_seq = ""
     nest_te_dict = {}
@@ -112,8 +112,11 @@ def generate_genome_nests(repeats, isrt_te_dict, gff, genome, alpha, beta, mode)
         new_nest_seq_tsd_frag = new_nest_seq_tsd
         
         #if isFrag:
-        if mode == 0 or mode == 1:    
-            new_nest_seq_tsd_frag, frag, cut = fragment(new_nest_seq_tsd, alpha, beta)
+        if mode == 0 or mode == 1:
+            if frag_mode in [1, 0]:
+                new_nest_seq_tsd_frag, frag, cut = fragment(new_nest_seq_tsd, alpha, beta)
+            if frag_mode == 2:
+                new_nest_seq_tsd_frag, frag, cut = fragment_m2(new_nest_seq_tsd, repeats[k].integrities)
         if mode == 2:
             new_nest_seq_tsd_frag, frag, cut = fragment_m2(new_nest_seq_tsd, repeats[k].integrities)
             
@@ -234,8 +237,9 @@ def main():
     parser = argparse.ArgumentParser(description="arguments of simulating nested TE insertions.")
 
     # Define arguments
-    parser.add_argument('-M', '--mode', type=int, help="Mode for genome simulation (either 0, 1 or 2).", required=True)
+    parser.add_argument('-M', '--mode', type=int, help="Mode for genome simulation (0, 1 or 2).", required=True)
     parser.add_argument('-p', '--prefix', type=str, help="Prefix for output files.", required=True)
+    parser.add_argument('-f', '--frag_mode', type=int, default=0, help="Mode for TE fragmentation (0, 1, or 2).")
     parser.add_argument('-a', '--alpha', type=float, default=0.7, help="Alpha value for the beta distribution used for fragmentation simulation.")
     parser.add_argument('-b', '--beta', type=float, default=0.5, help="Beta value for the beta distribution used for fragmentation simulation.")
     parser.add_argument('-o', '--outdir', type=str, help="Output directory.", required=True)
@@ -244,6 +248,7 @@ def main():
     args = parser.parse_args()
     mode = args.mode
     prefix = args.prefix
+    frag_mode = args.frag_mode
     alpha = args.alpha
     beta = args.beta
     final_out = args.outdir
@@ -284,14 +289,17 @@ def main():
     
     #Load non-redundant TE library and the gff file containing all TE insertions
     if args.mode == 0 or args.mode == 1:
-        repeats_dict = load_repeats_chr(params_chr)
+        if frag_mode in [0, 1]:
+            repeats_dict = load_repeats_chr(params_chr)
+        if frag_mode == 2:
+            repeats_dict = load_repeats_chr_m2(params_chr)
     elif args.mode == 2:
         repeats_dict = load_repeats_chr_m2(params_chr)
 
     gff = load_gff(gff_file)
     
     #Generate nested insertion
-    genome, isrt_te_dict, nest_te_dict, new_gff = generate_genome_nests(repeats_dict, isrt_te, gff, genome, alpha, beta, mode)
+    genome, isrt_te_dict, nest_te_dict, new_gff = generate_genome_nests(repeats_dict, isrt_te, gff, genome, alpha, beta, mode, frag_mode)
 
     #Output new genome fasta, all inserted TE fasta, and GFF after nested insertion.
     print_genome_nest_data(genome, isrt_te_dict, nest_te_dict, new_gff, params_chr, final_out)
