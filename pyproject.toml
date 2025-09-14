@@ -31,9 +31,7 @@ Homepage = "https://github.com/Plant-Food-Research-Open/TEgenomeSimulator"
 
 [project.scripts]
 tegenomesimulator = "TEgenomeSimulator.TEgenomeSimulator:main"
-[tool.pdm]
-distribution = false
 
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
