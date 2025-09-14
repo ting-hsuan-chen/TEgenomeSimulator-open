@@ -1,4 +1,4 @@
-# TEgenomeSimulator
+# TEgenomeSimulator <img src="TEgenomeSimulator_logo.png" align="right" alt="" width="120" />
 A tool to simulate TE mutation and insertion into a random-synthesised or user-provided genome.
 
 This tool is released under the GPL license to promote advancements in TE research. TEgenomeSimulator was developed by [The New Zealand Institute for Plant and Food Research Ltd](https://www.plantandfood.com/en-nz/). More details about contributors, leadership and funding can be found in [Credits, Funding and Acknowledgement](https://github.com/Plant-Food-Research-Open/TEgenomeSimulator?tab=readme-ov-file#credits-funding-and-acknowledgement).
@@ -84,16 +84,19 @@ TEgenomeSimulator has three modes to be specified by users using the argument `-
 - `-p` or `--prefix`: a prefix for your simulation
 - `-r` or `--repeat`: a fasta file containing TE family sequences (i.e. a TE library) to be mutated and then inserted into genome. The TE lib in our test [combined_curated_TE_lib_ATOSZM_selected.fasta](./test/input/combined_curated_TE_lib_ATOSZM_selected.fasta.gz) was created by concatenating TE library from a) _Arabidopsis thaliana_, b) _Oryza sativa_, and c) _Zea maize_ before using bbmap2 to remove exact duplicates and using CDHIT to generate a non-redundat TE lib for simulation test. The _A. thaliana_ and _Z. maize_ TE libraries were obtained from [EDTA repo (Ou et al. 2019)](https://github.com/oushujun/EDTA/tree/master/database) and the _O. sativa_ TE library was from [RepeatModeller2 (Flynn et al. 2020)](https://github.com/jmf422/TE_annotation/tree/master/benchmark_libraries/RM2).
 - `r2` or `--repeat2`: the TE lib fasta file for TE masking and removal. It is required when `--to_mask` is enabled under `--mode 1` or when `--mode 2` is chosen.
-- `-m` or `--maxcp`: an interger representing the maximum copy to be simulated for a TE family
-- `-n` or `--mincp`: an integer representing the minimum copy to be simulated for a TE family
+- `-m` or `--maxcp`: an interger representing the maximum copy to be simulated for a TE family (only feasible in mode 0 and 1)
+- `-n` or `--mincp`: an integer representing the minimum copy to be simulated for a TE family (only feasible in mode 0 and 1)
 - `-c` or `--chridx`: the chromosome index file if **Random Synthesized Genome mode** (`--mode 0`) is enabled. See the previous section **Run modes**.
 - `-g` or `--genome`: the genome fasta file if **Custom Genome mode** (`--mode 1`) is enabled. See the previous section **Run modes**.
-- `-a` or `--alpha`: a float number specifying the alpha value for generating beta distribution. Default is 0.7.
-- `-b` or `--beta`: a float number specifying the beta value for generating beta distribution. Default is 0.5.
-- `-i` or `--insert`: a float number between 0 and 1 representing the proportion of TE copies to be intact insertion. Default is 0.001 (i.e. 0.1%).
+- `-f` or `--frag_mode`: mode for TE fragmentation (0, 1, or 2). If frag_mode is 2, uses an integrity list read from `--te_table`, otherwise beta distribution.
+- `-a` or `--alpha`: a float number specifying the alpha value for generating beta distribution. Default is 0.7 (only feasible in mode 0 and 1).
+- `-b` or `--beta`: a float number specifying the beta value for generating beta distribution. Default is 0.5 (only feasible in mode 0 and 1).
+- `-i` or `--insert`: a float number between 0 and 1 representing the proportion of TE copies to be intact insertion. Default is 0.001 (i.e. 0.1%) (only feasible in mode 0 and 1).
 - `-s` or `--seed`: an integer to specify the seed value. Default is 1.
 - `-t` or `--threads`: an integer as the number of CPUs to be used for RepeatMasker.
-- `-o` or `--outdir`: the path to the output directory
+- `-o` or `--outdir`: the path to the output directory.
+- `--te_table`: Path to an existing TE mutagenesis settings table (modes 0 and 1 only).
+- `--te_scan_only`: Mode 2 only: stop after TE composition profiling and TE table generation.
 
 
 ### Key output files from TEgenomeSimulator

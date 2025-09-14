@@ -158,41 +158,41 @@ print(f"Minimum INDEL proportion set by default: {minimum}", flush=True)
 # tsd (use prior knowledge)
 print("\n", flush=True)
 print("## Setting the length of std based on prior knowledge ##", flush=True)
-ltr_retro = ['LTR/Copia', 'LTR/Gypsy', 'LTR/Ty3', 'LTR/Solo', 'LTR/unknown'] 
-line = ['LINE/unknown', 'LINE/L1']
-sine = ['SINE/unknown', 'SINE/tRNA']
-DTA = ['DNA/hAT', 'DNAnona/hAT', 'DNAauto/hAT']
-DTC = ['DNA/CACTA', 'DNAnona/CACTA', 'DNAauto/CACTA']
-DTH = ['DNA/Harbinger']
-DTM = ['DNA/MuDR', 'DNAnona/MULE', 'DNAauto/MULE']
-DTT = ['DNA/Mariner']
-helitron = ['DNA/Helitron', 'DNAnona/Helitron', 'DNAauto/Helitron']
-mite = ['MITE/Stow', 'MITE/Tourist']
+ltr_retro = ['LTR/Copia', 'LTR/Gypsy', 'LTR/Ty3', 'LTR/Solo', 'LTR/unknown', 'LTR'] 
+line = ['LINE/unknown', 'LINE/L1', 'LINE/LINE_Unknown', 'LINE']
+sine = ['SINE/unknown', 'SINE/tRNA', 'SINE/SINE_Unknown', 'SINE']
+DTA = ['DNA/hAT', 'DNAnona/hAT', 'DNAauto/hAT', 'DNA/DTA']
+DTC = ['DNA/CACTA', 'DNAnona/CACTA', 'DNAauto/CACTA', 'DNA/DTC', 'DNA/CMC', 'DNA/Enspm', 'DNA/Transib']
+DTH = ['DNA/Harbinger', 'DNA/DTH', 'DNA/PIF', 'DNA/HarbS', 'DNA/ISL2EU']
+DTM = ['DNA/MuDR', 'DNAnona/MULE', 'DNAauto/MULE', 'DNA/DTM', 'DNA/MULE']
+DTT = ['DNA/Mariner', 'DNA/DTT', 'DNA/TcMar', 'DNA/Tc1']
+helitron = ['DNA/Helitron', 'DNAnona/Helitron', 'DNAauto/Helitron', 'RC/Helitron']
+mite = ['MITE']
 
 tsd = []
 for sup_fam in te_superfamily:
-    if sup_fam in ltr_retro:
+    if any(sup_fam.upper().startswith(te.upper()) for te in ltr_retro):
         tsd_range = '5,5'
-    if sup_fam in line:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in line):
         tsd_range = '5,20'
-    if sup_fam in sine:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in sine):
         tsd_range = '5,20'
-    if sup_fam in DTA:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTA):
         tsd_range = '5,8'
-    if sup_fam in DTC:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTC):
         tsd_range = '2,4'
-    if sup_fam in DTH:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTH):
         tsd_range = '3,3'
-    if sup_fam in DTM:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTM):
         tsd_range = '8,9'
-    if sup_fam in DTT:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in DTT):
         tsd_range = '2,2'
-    if sup_fam in helitron:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in helitron):
         tsd_range = '0,0'
-    if sup_fam in mite:
+    elif any(sup_fam.upper().startswith(te.upper()) for te in mite):
         tsd_range = '2,10'
     else:
-        tsd_range = '0,0'
+        tsd_range = '0,0' 
     tsd.append(str(tsd_range))
 
 print("Length range of TSD for LTR retrotransposon set to: 5 - 5", flush=True)

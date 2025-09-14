@@ -47,26 +47,26 @@ def load_custom_genome(params_chr):
     return chrs_dict
 
 ##Load collection of repeats and params
-def load_repeats(params):
-    repeats_dict = {}
-    fasta = SeqIO.index(params['rep_fasta'], "fasta")
-    with open(params['rep_list'], 'r') as repeats_file:
-        next(repeats_file)
-        for line in repeats_file:
-            elem = line.rstrip().split()
-            name = elem[0]
-            sequence = str(fasta[name].seq).upper()
-            num_rep = int(elem[1])
-            identity = int(elem[2])
-            sd = int(elem[3])
-            indels = int(elem[4])
-            tsd = True if elem[5] == "y" else False
-            frag = float(elem[7])
-            nest = int(elem[8])
-            #integrity_list = elem[9]
-            repeat = Repeat(name, sequence, num_rep, identity, sd, indels, tsd, frag, nest)
-            repeats_dict[name] = repeat
-    return repeats_dict
+#def load_repeats(params): # old version from denovoTE-eval
+#    repeats_dict = {}
+#    fasta = SeqIO.index(params['rep_fasta'], "fasta")
+#    with open(params['rep_list'], 'r') as repeats_file:
+#        next(repeats_file)
+#        for line in repeats_file:
+#            elem = line.rstrip().split()
+#            name = elem[0]
+#            sequence = str(fasta[name].seq).upper()
+#            num_rep = int(elem[1])
+#            identity = int(elem[2])
+#            sd = int(elem[3])
+#            indels = int(elem[4])
+#            tsd = True if elem[5] == "y" else False
+#            frag = float(elem[7])
+#            nest = int(elem[8])
+#            #integrity_list = elem[9]
+#            repeat = Repeat(name, sequence, num_rep, identity, sd, indels, tsd, frag, nest)
+#            repeats_dict[name] = repeat
+#    return repeats_dict
 
 ##Load collection of repeats and params for chrs simulation for mode 0 and 1 (function created by THC)
 def load_repeats_chr(params_chr):
@@ -222,7 +222,7 @@ def generate_mismatches(sequence, identity, indels):
     indel_changes_vec.sort()
     return base_changes_vec, indel_changes_vec
 
-##reate SNPs
+##Create SNPs
 def add_base_changes(repeat_seq, base_changes_vec):
     alphabet = ["T", "G", "C", "A"]
     repeat_seq_list = list(repeat_seq)
@@ -290,7 +290,7 @@ def fragment_m2(seq, integrity_lst):
     return seq[cut_length:], length_ratio*100 , cut_length
 
 ##Generate new sequence including the repeats in the random one (modified by THC)
-def generate_sequence(repeats_dict, rand_rep_pos, rand_seq, total_names_rep, alpha, beta, mode):
+def generate_sequence(repeats_dict, rand_rep_pos, rand_seq, total_names_rep, alpha, beta, mode, frag_mode):
     seq = ""
     tsd_seq_5= ""
     tsd_seq_3= ""
@@ -335,10 +335,14 @@ def generate_sequence(repeats_dict, rand_rep_pos, rand_seq, total_names_rep, alp
         new_repeat_seq_str=""
         new_repeat_seq_frag=""
         if mode == 0 or mode == 1:
-            if m[1] == 1:
-                new_repeat_seq_frag, frag, cut_length = fragment(new_repeat_seq, alpha, beta)
-            else:
-                new_repeat_seq_frag = new_repeat_seq
+            if frag_mode in [0, 1]:
+                if m[1] == 1:
+                    new_repeat_seq_frag, frag, cut_length = fragment(new_repeat_seq, alpha, beta)
+                else:
+                    new_repeat_seq_frag = new_repeat_seq
+            if frag_mode == 2:
+                integrity_lst = repeats_dict[m[0]].integrities
+                new_repeat_seq_frag, frag, cut_length = fragment_m2(new_repeat_seq, integrity_lst)
         if mode == 2:
             integrity_lst = repeats_dict[m[0]].integrities
             new_repeat_seq_frag, frag, cut_length = fragment_m2(new_repeat_seq, integrity_lst)
@@ -370,7 +374,7 @@ def generate_sequence(repeats_dict, rand_rep_pos, rand_seq, total_names_rep, alp
     return seq, new_repeats_coord
 
 ##Generate new sequence including the repeats in the random chr sequences (function created by THC)
-def generate_genome_sequence(repeats_dict, rand_rep_pos, rand_chr_dict, shuffled_repeats, alpha, beta, mode):
+def generate_genome_sequence(repeats_dict, rand_rep_pos, rand_chr_dict, shuffled_repeats, alpha, beta, mode, frag_mode):
     #Create placeholders for the genome seq and TE coordinates
     genome_dict = {}
     new_repeats_coord_dict = {}
@@ -388,7 +392,7 @@ def generate_genome_sequence(repeats_dict, rand_rep_pos, rand_chr_dict, shuffled
         #The end of the slice becomes the start for next chromosome
         shuffled_start_index = shuffled_end_index
         #Call generate_sequence function chromosome by chromosome
-        sequence, new_repeats_coord = generate_sequence(repeats_dict, rand_rep_pos_filter, rand_seq, shuffled_repeats_sliced, alpha, beta, mode)
+        sequence, new_repeats_coord = generate_sequence(repeats_dict, rand_rep_pos_filter, rand_seq, shuffled_repeats_sliced, alpha, beta, mode, frag_mode)
         genome_dict[chromosome] = sequence
         new_repeats_coord_dict[chromosome] = new_repeats_coord 
     #Return sequences and repeat data
@@ -453,6 +457,7 @@ def main():
     # Define arguments
     parser.add_argument('-M', '--mode', type=int, help="Mode for genome simulation (either 0 or 1).", required=True)
     parser.add_argument('-p', '--prefix', type=str, help="Prefix for output files.", required=True)
+    parser.add_argument('-f', '--frag_mode', type=int, default=0, help="Mode for TE fragmentation (0, 1, or 2).")
     parser.add_argument('-a', '--alpha', type=float, default=0.5, help="Alpha value for the beta distribution used for fragmentation simulation.")
     parser.add_argument('-b', '--beta', type=float, default=0.7, help="Beta value for the beta distribution used for fragmentation simulation.")
     parser.add_argument('-o', '--outdir', type=str, help="Output directory.", required=True)
@@ -461,6 +466,7 @@ def main():
     args = parser.parse_args()
     mode = args.mode
     prefix = args.prefix
+    frag_mode = args.frag_mode
     alpha = args.alpha 
     beta = args.beta
     final_out = args.outdir
@@ -497,17 +503,19 @@ def main():
 
     #Load repeat sequences
     if args.mode == 0 or args.mode == 1:
-        repeats_dict = load_repeats_chr(params_chr)
+        if frag_mode in [0, 1]:
+            repeats_dict = load_repeats_chr(params_chr)
+        if frag_mode == 2:
+            repeats_dict = load_repeats_chr_m2(params_chr) 
     elif args.mode == 2:
-        repeats_dict = load_repeats_chr_m2(params_chr)  
-        #repeats_dict = load_repeats_chr(params_chr)  
+        repeats_dict = load_repeats_chr_m2(params_chr)   
 
     #Assign TE coordinates randomly
     repeats_coord = assign_chr_coord_repeats(params_chr, repeats_dict)
     #Shuffle the order the repeats to be inserted into the genome
     shuffled_repeats = shuffle_repeats(repeats_dict)
     #Generate genome sequence with TE insertion
-    genome, new_repeats_coord = generate_genome_sequence(repeats_dict, repeats_coord, chrs_dict, shuffled_repeats, alpha, beta, mode)
+    genome, new_repeats_coord = generate_genome_sequence(repeats_dict, repeats_coord, chrs_dict, shuffled_repeats, alpha, beta, mode, frag_mode)
     #Output to fasta and gff files
     print_genome_data(genome, new_repeats_coord, params_chr, final_out)
 if __name__ == "__main__":

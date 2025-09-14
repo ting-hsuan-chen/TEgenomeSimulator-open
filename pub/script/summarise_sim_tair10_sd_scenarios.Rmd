@@ -1,0 +1,484 @@
+---
+title: "Investing the settings of identity"
+author: "Ting-Hsuan Chen"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+WRK <- "/workspace/cflthc/scratch/TEGE/TEgenomeSimulator/tair10/"
+OUT <- paste0(WRK, "report/")
+dir.create(file.path(OUT), recursive = TRUE, showWarnings = FALSE)
+knitr::opts_knit$set(root.dir=OUT)
+```
+
+```{r, load_TEsnoopeR, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+#library(RColorBrewer)
+#library(repr)
+#library(reshape2)
+#library(stringr)
+#library(ComplexHeatmap)
+library(knitr)
+source("/workspace/cflthc/script/TEGE/TEgenomeSimulator/functions.R")
+```
+
+Tables and images saved in\
+`r OUT`
+
+## Load files
+
+```{r, load_files, echo=FALSE}
+# scenario 1
+n <-'1'
+genomename <- paste0('tair10_sim_scenario', n)
+short_gname <- paste0('tair10_sd_scenario', n)
+SIM <- paste0(WRK, "output/TEgenomeSimulator_tair10_sd_scenario", n, "_result/")
+gfai <- paste0(short_gname, '_genome_sequence_out_final.fasta.fai')
+tfai <- paste0(short_gname, '_repeat_sequence_out_final.fasta.fai')
+gff <- paste0(short_gname, '_repeat_annotation_out_final.gff')
+genomefai <- read.table(paste0(SIM, gfai), header = F, sep = '\t')
+tefai <- read.table(paste0(SIM, tfai), header = F, sep = '\t', comment.char = "")
+tegff <- read.table(paste0(SIM, gff), header = F, sep = '\t', comment.char = "")
+genomesize1 <- sum(genomefai$V2)
+tesize1 <- sum(tefai$V2)
+te_perc1 <- tesize1 * 100 / (genomesize1)
+data.sum1 <- te_by_superfamily_sim_genome(tegff)
+total_loci1 <- sum(data.sum1$count)
+breakdown1 <- te_breakdown_sim_genome(tegff)
+
+# scenario 2
+n <-'2'
+genomename <- paste0('tair10_sim_scenario', n)
+short_gname <- paste0('tair10_sd_scenario', n)
+SIM <- paste0(WRK, "output/TEgenomeSimulator_tair10_sd_scenario", n, "_result/")
+gfai <- paste0(short_gname, '_genome_sequence_out_final.fasta.fai')
+tfai <- paste0(short_gname, '_repeat_sequence_out_final.fasta.fai')
+gff <- paste0(short_gname, '_repeat_annotation_out_final.gff')
+genomefai <- read.table(paste0(SIM, gfai), header = F, sep = '\t')
+tefai <- read.table(paste0(SIM, tfai), header = F, sep = '\t', comment.char = "")
+tegff <- read.table(paste0(SIM, gff), header = F, sep = '\t', comment.char = "")
+genomesize2 <- sum(genomefai$V2)
+tesize2 <- sum(tefai$V2)
+te_perc2 <- tesize2 * 100 / (genomesize2)
+data.sum2 <- te_by_superfamily_sim_genome(tegff)
+total_loci2 <- sum(data.sum2$count)
+breakdown2 <- te_breakdown_sim_genome(tegff)
+
+# scenario 3
+n <-'3'
+genomename <- paste0('tair10_sim_scenario', n)
+short_gname <- paste0('tair10_sd_scenario', n)
+SIM <- paste0(WRK, "output/TEgenomeSimulator_tair10_sd_scenario", n, "_result/")
+gfai <- paste0(short_gname, '_genome_sequence_out_final.fasta.fai')
+tfai <- paste0(short_gname, '_repeat_sequence_out_final.fasta.fai')
+gff <- paste0(short_gname, '_repeat_annotation_out_final.gff')
+genomefai <- read.table(paste0(SIM, gfai), header = F, sep = '\t')
+tefai <- read.table(paste0(SIM, tfai), header = F, sep = '\t', comment.char = "")
+tegff <- read.table(paste0(SIM, gff), header = F, sep = '\t', comment.char = "")
+genomesize3 <- sum(genomefai$V2)
+tesize3 <- sum(tefai$V2)
+te_perc3 <- tesize3 * 100 / (genomesize3)
+data.sum3 <- te_by_superfamily_sim_genome(tegff)
+total_loci3 <- sum(data.sum3$count)
+breakdown3 <- te_breakdown_sim_genome(tegff)
+
+# scenario 4
+n <-'4'
+genomename <- paste0('tair10_sim_scenario', n)
+short_gname <- paste0('tair10_sd_scenario', n)
+SIM <- paste0(WRK, "output/TEgenomeSimulator_tair10_sd_scenario", n, "_result/")
+gfai <- paste0(short_gname, '_genome_sequence_out_final.fasta.fai')
+tfai <- paste0(short_gname, '_repeat_sequence_out_final.fasta.fai')
+gff <- paste0(short_gname, '_repeat_annotation_out_final.gff')
+genomefai <- read.table(paste0(SIM, gfai), header = F, sep = '\t')
+tefai <- read.table(paste0(SIM, tfai), header = F, sep = '\t', comment.char = "")
+tegff <- read.table(paste0(SIM, gff), header = F, sep = '\t', comment.char = "")
+genomesize4 <- sum(genomefai$V2)
+tesize4 <- sum(tefai$V2)
+te_perc4 <- tesize4 * 100 / (genomesize4)
+data.sum4 <- te_by_superfamily_sim_genome(tegff)
+total_loci4 <- sum(data.sum4$count)
+breakdown4 <- te_breakdown_sim_genome(tegff)
+```
+
+## The proportion of the TE/nonTE sequence
+```{r, assemble_stat, echo=FALSE}
+dfstat <- data.frame(genomename = c('Scenario I', 'Scenario II', 'Scenario III', 'Scenario IV'),
+                     copy_number = c(rep('5-1000', 4)),
+                     mean_idn = c('90-100', '70-80', '70-80', '90-100'),
+                     sd_range = c('15-20', '15-20', '1-5', '1-5'),
+                     alpha = c(0.9, 0.8, 0.7, 1),
+                     beta = c(rep(0.5, 4)),
+                     intact = c(0.003, 0.002, 0.001, 0.004),
+                     genomesize = c(genomesize1, genomesize2, genomesize3, genomesize4),
+                     tesize = c(tesize1, tesize2, tesize3, tesize4),
+                     teperc = c(te_perc1, te_perc2, te_perc3, te_perc4),
+                     teloci = c(total_loci1, total_loci2, total_loci3, total_loci4)) 
+
+kable(dfstat, format="markdown")
+```
+```{r, plot_genomesize, echo=FALSE, fig.width = 8, fig.asp = 0.7}
+plotwidth <- 8
+plotheight <- 5.6
+
+plot <- ggplot(dfstat, aes(x = genomesize, y = teperc, size = alpha*intact, label = genomename, color = genomename)) +
+  geom_point(alpha = 0.7) +
+  #geom_point() +
+  scale_color_manual(values = c('#CC6666', '#999966', '#0099AA', '#996699')) + 
+  geom_text(vjust = -1.7, size = 4, fontface = 'bold') +
+  labs(title = "TE bases % vs genome size influenced by \nTE integrity",
+       x = "Genome Size", y = "TE bases %",
+       color = "Scenarios",
+       size = "Alpha x Intact Rate") +
+  scale_y_continuous(limits = c(82, 86), breaks = seq(82, 86, by = 1)) +
+  scale_x_continuous(limits = c(6e8, 6.75e8), breaks = seq(6e8, 6.75e8, by = 2.5e7)) +
+  scale_size(range = c(2, 10)) +
+  theme(title = element_text(size = 12),
+        axis.text.y = element_text(size = rel(2)),
+        axis.text.x = element_text(size = rel(2), angle = 45, hjust = 1),
+        axis.title.x = element_text(size = rel(1.8)),
+        axis.title.y = element_text(size = rel(1.8)),
+        legend.title = element_text(size = rel(1.5)),
+        legend.text = element_text(size = rel(1.5)),
+        legend.key.size = unit(0.5, "cm"),
+        legend.background = element_blank(),
+        panel.background = element_rect(fill = "white", color = "black"),
+        panel.grid.major = element_line(color = "gray80"),
+        panel.grid.minor = element_line(color = "gray90"))
+plot
+```
+```{r, save_genomesize_fig, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenarios_genomesize_bubbleplot.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
+
+```{r, combine_breakdown, include=FALSE}
+breakdown1$test <- 'scenario1: high identity + high sd' 
+breakdown2$test <- 'scenario2: low identity + high sd'
+breakdown3$test <- 'scenario3: low identity + low sd'
+breakdown4$test <- 'scenario4: high identity + low sd'
+
+
+breakdown_all <- rbind(breakdown1, breakdown2, breakdown3, breakdown4)
+
+breakdown_all$test <- factor(breakdown_all$test, levels = c('scenario4: high identity + low sd',
+                                                            'scenario3: low identity + low sd',
+                                                            'scenario2: low identity + high sd',
+                                                            'scenario1: high identity + high sd'),
+                             ordered = TRUE)
+```
+
+```{r, plot_div1, fig.width = 5, fig.asp = 1}
+plotwidth <- 5
+plotheight <- 5
+
+plot <- ggplot(breakdown1, aes(as.numeric(div))) +
+    #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+    geom_histogram(position = "stack", binwidth = 0.02, color = "white", alpha = 0.8, fill = "#006655") +
+    ggtitle("Scenario 1") +
+    xlab("Divergence") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(-0.02, 1.02), breaks = seq(0, 1, by = 0.1)) +
+    theme(title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.title = element_blank(),
+          legend.text = element_text(size = rel(1.8)),
+          legend.key.size = unit(0.5, "cm"),
+          legend.background = element_blank(),
+          panel.background = element_rect(fill = "white", color = "black"))
+
+plot
+```
+
+```{r, save_div_fig_scen1, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenario1_divergence_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
+
+```{r, plot_div2, fig.width = 5, fig.asp = 1}
+plotwidth <- 5
+plotheight <- 5
+
+plot <- ggplot(breakdown2, aes(as.numeric(div))) +
+    #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+    geom_histogram(position = "stack", binwidth = 0.02, color = "white", alpha = 0.8, fill = "#006655") +
+    ggtitle("Scenario 2") +
+    xlab("Divergence") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(-0.02, 1.02), breaks = seq(0, 1, by = 0.1)) +
+    theme(title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.title = element_blank(),
+          legend.text = element_text(size = rel(1.8)),
+          legend.key.size = unit(0.5, "cm"),
+          legend.background = element_blank(),
+          panel.background = element_rect(fill = "white", color = "black"))
+
+plot
+```
+
+```{r, save_div_fig_scen2, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenario2_divergence_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
+
+```{r, plot_div3, fig.width = 5, fig.asp = 1}
+plotwidth <- 5
+plotheight <- 5
+
+plot <- ggplot(breakdown3, aes(as.numeric(div))) +
+    #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+    geom_histogram(position = "stack", binwidth = 0.02, color = "white", alpha = 0.8, fill = "#006655") +
+    ggtitle("Scenario 3") +
+    xlab("Divergence") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(-0.02, 1.02), breaks = seq(0, 1, by = 0.1)) +
+    theme(title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.title = element_blank(),
+          legend.text = element_text(size = rel(1.8)),
+          legend.key.size = unit(0.5, "cm"),
+          legend.background = element_blank(),
+          panel.background = element_rect(fill = "white", color = "black"))
+
+plot
+```
+
+```{r, save_div_fig_scen3, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenario3_divergence_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
+
+```{r, plot_div4, fig.width = 5, fig.asp = 1}
+plotwidth <- 5
+plotheight <- 5
+
+plot <- ggplot(breakdown4, aes(as.numeric(div))) +
+    #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+    geom_histogram(position = "stack", binwidth = 0.02, color = "white", alpha = 0.8, fill = "#006655") +
+    ggtitle("Scenario 4") +
+    xlab("Divergence") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(-0.02, 1.02), breaks = seq(0, 1, by = 0.1)) +
+    theme(title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.title = element_blank(),
+          legend.text = element_text(size = rel(1.8)),
+          legend.key.size = unit(0.5, "cm"),
+          legend.background = element_blank(),
+          panel.background = element_rect(fill = "white", color = "black"))
+
+plot
+```
+
+```{r, save_div_fig_scen4, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenario4_divergence_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
+
+```{r, div_density_plot, echo=FALSE, fig.width = 6, fig.asp = 0.8}
+plotwidth <- 6
+plotheight <- 4.8
+
+p <- ggplot(breakdown_all,aes(x=div)) + 
+    geom_histogram(data=subset(breakdown_all, test == 'scenario1: high identity + high sd'),binwidth = 0.02, fill = '#CC6666', alpha = 0.2, color = '#CC6666') +
+    geom_histogram(data=subset(breakdown_all, test == 'scenario2: low identity + high sd'),binwidth = 0.02, fill = '#999966', alpha = 0.2, color = '#999966') +
+    geom_histogram(data=subset(breakdown_all, test == 'scenario3: low identity + low sd'),binwidth = 0.02, fill = '#0099AA', alpha = 0.2, color = '#0099AA') +
+    geom_histogram(data=subset(breakdown_all, test == 'scenario4: high identity + low sd'),binwidth = 0.02, fill = '#996699', alpha = 0.2, color = '#996699') +
+    ggtitle("Siquence divergence distribution: \nScenarios controlled by mean identity, sd, alpha, and intact rate") +
+    xlab("Divergence") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(-0.02, 1.02), breaks = seq(0, 1, by = 0.25)) +
+    theme(title = element_text(size = 10),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.title = element_blank(),
+          legend.text = element_text(size = rel(1.8)),
+          legend.key.size = unit(0.5, "cm"),
+          legend.background = element_blank(),
+          panel.background = element_rect(fill = "white", color = "black"))
+p
+```
+
+```{r, save_div_histogram, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenarioAll_divergence_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(p)
+while (!is.null(dev.list()))  dev.off()
+```
+
+
+```{r, div_density_plot_wide, echo=FALSE, fig.width = 6, fig.asp = 0.6}
+plotwidth <- 6
+plotheight <- 3.6
+
+p <- ggplot(breakdown_all,aes(x=div)) + 
+    geom_histogram(data=subset(breakdown_all, test == 'scenario1: high identity + high sd'),binwidth = 0.02, fill = '#CC6666', alpha = 0.2, color = '#CC6666') +
+    geom_histogram(data=subset(breakdown_all, test == 'scenario2: low identity + high sd'),binwidth = 0.02, fill = '#999966', alpha = 0.2, color = '#999966') +
+    geom_histogram(data=subset(breakdown_all, test == 'scenario3: low identity + low sd'),binwidth = 0.02, fill = '#0099AA', alpha = 0.2, color = '#0099AA') +
+    geom_histogram(data=subset(breakdown_all, test == 'scenario4: high identity + low sd'),binwidth = 0.02, fill = '#996699', alpha = 0.2, color = '#996699') +
+    ggtitle("Siquence divergence distribution: \nScenarios controlled by mean identity, sd, alpha, and intact rate") +
+    xlab("Divergence") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(-0.02, 1.02), breaks = seq(0, 1, by = 0.25)) +
+    theme(title = element_text(size = 10),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.title = element_blank(),
+          legend.text = element_text(size = rel(1.8)),
+          legend.key.size = unit(0.5, "cm"),
+          legend.background = element_blank(),
+          panel.background = element_rect(fill = "white", color = "black"))
+p
+```
+
+```{r, save_div_histogram_wide, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenarioAll_divergence_histogram_wide.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(p)
+while (!is.null(dev.list()))  dev.off()
+```
+
+
+```{r, plot_itg1, fig.width = 5, fig.asp = 1}
+plotwidth <- 5
+plotheight <- 5
+
+plot <- ggplot(breakdown1, aes(as.numeric(itg))) +
+    #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+    geom_histogram(aes(alpha = 0.8), position = "stack", binwidth = 0.02, color = "white", fill = '#CC6666') +
+    ggtitle("Scenario 1") +
+    xlab("Integrity") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(0, 1.02), breaks = seq(0, 1, by = 0.1)) +
+    theme(title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.position="none",
+          legend.background = element_blank(),
+          panel.background = element_rect(fill = "white", color = "black"))
+
+plot
+```
+```{r, save_itg_fig_scen1, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenario1_integrity_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
+
+```{r, plot_itg2, fig.width = 5, fig.asp = 1}
+plotwidth <- 5
+plotheight <- 5
+
+plot <- ggplot(breakdown2, aes(as.numeric(itg))) +
+    #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+    geom_histogram(aes(alpha = 0.8), position = "stack", binwidth = 0.02, color = "white", fill = '#999966') +
+    ggtitle("Scenario 2") +
+    xlab("Integrity") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(0, 1.02), breaks = seq(0, 1, by = 0.1)) +
+    theme(title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.position="none",
+          panel.background = element_rect(fill = "white", color = "black"))
+
+plot
+```
+
+```{r, save_itg_fig_scen2, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenario2_integrity_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
+
+```{r, plot_itg3, fig.width = 5, fig.asp = 1}
+plotwidth <- 5
+plotheight <- 5
+
+plot <- ggplot(breakdown3, aes(as.numeric(itg))) +
+    #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+    geom_histogram(aes(alpha = 0.8), position = "stack", binwidth = 0.02, color = "white", fill = '#0099AA') +
+    ggtitle("Scenario 3") +
+    xlab("Integrity") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(0, 1.02), breaks = seq(0, 1, by = 0.1)) +
+    theme(title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.position="none",
+          panel.background = element_rect(fill = "white", color = "black"))
+
+plot
+```
+
+```{r, save_itg_fig_scen3, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenario3_integrity_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
+
+```{r, plot_itg4, fig.width = 5, fig.asp = 1}
+plotwidth <- 5
+plotheight <- 5
+
+plot <- ggplot(breakdown4, aes(as.numeric(itg))) +
+    #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+    geom_histogram(aes(alpha = 0.8), position = "stack", binwidth = 0.02, color = "white", fill = '#996699') +
+    ggtitle("Scenario 4") +
+    xlab("Integrity") + ylab("TE loci") +
+    scale_y_continuous(limits = c(0, 37000), breaks = seq(0, 37000, by = 5000)) +
+    scale_x_continuous(limits = c(0, 1.02), breaks = seq(0, 1, by = 0.1)) +
+    theme(title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.title.x = element_text(size = rel(1.8)),
+          axis.title.y = element_text(size = rel(1.8)),
+          legend.position="none",
+          panel.background = element_rect(fill = "white", color = "black"))
+
+plot
+```
+
+```{r, save_itg_fig_scen4, echo=FALSE}
+png(filename = paste0(OUT, "sim_tair10_sd_scenario4_integrity_histogram.png"), width = plotwidth, height = plotheight, units = "in", res = 1200)
+print(plot)
+while (!is.null(dev.list()))  dev.off()
+```
