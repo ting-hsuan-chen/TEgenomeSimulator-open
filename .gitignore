@@ -5,9 +5,29 @@
 *.gff
 
 # ignore output folder
+test/output/
 ./test/output
+./test/output/*
+
 
 # ignore apptainer image
 *.sif
 
 *.pyc
+# ignore __pycache__
+TEgenomeSimulator/utils/__pycache__/*
+
+
+# ignore .DS_Store
+.DS_Store
+test/.DS_Store
+
+
+# ignore files used for reproducibility test
+test/input/fake_repeat.fa
+test/input/random_genome_chr_index_small.csv
+test/test_reproducibility.md
+
+# ignore pub
+pub
+pub/*
