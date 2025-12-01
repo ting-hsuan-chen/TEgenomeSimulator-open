@@ -13,6 +13,7 @@ test/output/
 # ignore apptainer image
 *.sif
 
+*.pyc
 # ignore __pycache__
 TEgenomeSimulator/utils/__pycache__/*
 
